@@ -56,17 +56,20 @@ func GetAccount(client *Client) (*Account, error) {
 	return &account, err
 }
 
-func PlaceOrder(client *Client, order *Order) error {
-	oderData, err := json.Marshal(order)
+func PlaceOrder(client *Client, order *Order) (*GetOrderResult, error) {
+	orderData, err := json.Marshal(order)
+	fmt.Println(string(orderData))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	responseData, err := client.Do("POST", "orders", oderData)
+	responseData, err := client.Do("POST", "orders", orderData)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return json.Unmarshal(responseData, order)
+	placedOrder := new(GetOrderResult)
+	err = json.Unmarshal(responseData, placedOrder)
+	return placedOrder, nil
 }
 
 func ActivateOrder(client *Client, orderID string) error {
@@ -86,13 +89,18 @@ func GetOrders(client *Client) (*GetOrdersResult, error) {
 }
 
 func GetOrder(client *Client, orderID string) (*GetOrderResult, error) {
-	responseData, err := client.Do("POST", fmt.Sprintf("orders/%s/activate", orderID), nil)
+	responseData, err := client.Do("POST", fmt.Sprintf("orders/%s", orderID), nil)
 	if err != nil {
 		return nil, err
 	}
 	order := new(GetOrderResult)
 	err = json.Unmarshal(responseData, order)
 	return order, err
+}
+
+func DeleteOrder(client *Client, orderID string) error {
+	_, err := client.Do("DELETE", fmt.Sprintf("orders/%s", orderID), nil)
+	return err
 }
 
 type GetOrdersResult struct {
@@ -106,23 +114,23 @@ type GetOrderResult struct {
 }
 
 type Order struct {
-	CreatedAt             time.Time             `json:"created_at"`
-	ID                    string                `json:"id"`
-	Status                string                `json:"status"`
-	ISIN                  string                `json:"isin"`
-	ExpiresAt             time.Time             `json:"expires_at"`
-	Side                  string                `json:"buy"`
-	Quantity              string                `json:"quantity"`
-	StopPrice             float64               `json:"stop_price"`
-	LimitPrice            float64               `json:"limit_price"`
-	Venue                 string                `json:"venue"`
-	EstimatedPrice        float64               `json:"estimated_price"`
-	Notes                 string                `json:"notes"`
-	Idempotency           string                `json:"idempotency"`
-	Charge                float64               `json:"charge"`
-	ChargeableAt          time.Time             `json:"chargeable_at"`
-	KeyCreationID         string                `json:"key_creation_id"`
-	RegulatoryInformation RegulatoryInformation `json:"regulatory_information"`
+	CreatedAt             time.Time              `json:"created_at,omitempty"`
+	ID                    string                 `json:"id,omitempty"`
+	Status                string                 `json:"status,omitempty"`
+	ISIN                  string                 `json:"isin,omitempty"`
+	ExpiresAt             time.Time              `json:"expires_at,omitempty"`
+	Side                  string                 `json:"side,omitempty"`
+	Quantity              int                    `json:"quantity,omitempty"`
+	StopPrice             float64                `json:"stop_price,omitempty"`
+	LimitPrice            float64                `json:"limit_price,omitempty"`
+	Venue                 string                 `json:"venue,omitempty"`
+	EstimatedPrice        float64                `json:"estimated_price,omitempty"`
+	Notes                 string                 `json:"notes,omitempty"`
+	Idempotency           string                 `json:"idempotency,omitempty"`
+	Charge                float64                `json:"charge,omitempty"`
+	ChargeableAt          time.Time              `json:"chargeable_at,omitempty"`
+	KeyCreationID         string                 `json:"key_creation_id,omitempty"`
+	RegulatoryInformation *RegulatoryInformation `json:"regulatory_information,omitempty"`
 }
 
 type ActivatedOrder struct {

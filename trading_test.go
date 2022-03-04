@@ -6,18 +6,18 @@ import (
 	"time"
 )
 
-func GetClient(t *testing.T) *Client {
+func GetClient(t *testing.T, env Envrionment) *Client {
 	t.Helper()
 	apiKey, isSet := os.LookupEnv("LEMON_API_KEY")
 	if !isSet {
 		t.Skip("missing environment variable LEMON_API_KEY")
 	}
-	c := Client{Envrionment: PAPER, ApiKey: apiKey}
+	c := Client{Envrionment: env, ApiKey: apiKey}
 	return &c
 }
 
 func TestAccountIntegration(t *testing.T) {
-	client := GetClient(t)
+	client := GetClient(t, PAPER)
 	_, err := GetAccount(client)
 	if err != nil {
 		t.Errorf("Failure to get account %w", err)
@@ -27,7 +27,7 @@ func TestAccountIntegration(t *testing.T) {
 func TestOrderIntegration(t *testing.T) {
 	ISIN := "DE000CBK1001"
 	var orderID string
-	client := GetClient(t)
+	client := GetClient(t, PAPER)
 	t.Run("Place Order", func(t *testing.T) {
 		expires_at := time.Now().AddDate(0, 0, 14)
 

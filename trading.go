@@ -58,7 +58,6 @@ func GetAccount(client *Client) (*Account, error) {
 
 func PlaceOrder(client *Client, order *Order) (*GetOrderResult, error) {
 	orderData, err := json.Marshal(order)
-	fmt.Println(string(orderData))
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +68,7 @@ func PlaceOrder(client *Client, order *Order) (*GetOrderResult, error) {
 	}
 	placedOrder := new(GetOrderResult)
 	err = json.Unmarshal(responseData, placedOrder)
-	return placedOrder, nil
+	return placedOrder, err
 }
 
 func ActivateOrder(client *Client, orderID string) error {
@@ -89,7 +88,7 @@ func GetOrders(client *Client) (*GetOrdersResult, error) {
 }
 
 func GetOrder(client *Client, orderID string) (*GetOrderResult, error) {
-	responseData, err := client.Do("POST", fmt.Sprintf("orders/%s", orderID), nil)
+	responseData, err := client.Do("GET", fmt.Sprintf("orders/%s", orderID), nil)
 	if err != nil {
 		return nil, err
 	}

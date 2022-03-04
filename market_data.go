@@ -7,6 +7,40 @@ import (
 	"time"
 )
 
+type GetInstrumentsResult struct {
+	ListReply
+	Results []Instrument `json:"results"`
+}
+
+type Instrument struct {
+	ISIN   string  `json:"isin"`
+	WKN    string  `json:"wkn"`
+	Name   string  `json:"name"`
+	Title  string  `json:"title"`
+	Symbol string  `json:"symbol"`
+	Type   string  `json:"type"`
+	Venues []Venue `json:"venues"`
+}
+
+type Venue struct {
+	Name     string `json:"name"`
+	Title    string `json:"title"`
+	Mic      string `json:"mic"`
+	IsOpen   bool   `json:"is_open"`
+	Tradable bool   `json:"tradable"`
+	Currency string `json:"currency"`
+}
+
+func GetInstruments(client *Client) (*GetInstrumentsResult, error) {
+	responseData, err := client.Do("GET", "instruments", nil)
+	if err != nil {
+		return nil, err
+	}
+	getInstruments := new(GetInstrumentsResult)
+	err = json.Unmarshal(responseData, getInstruments)
+	return getInstruments, err
+}
+
 type Quote struct {
 	ISIN      string    `json:"isin"`
 	BidVolume int       `json:"b_v"`
@@ -22,8 +56,8 @@ type GetQuotesResponse struct {
 	Results []Quote `json:"results"`
 }
 
-func GetQuotes(client *Client, from time.Time, to time.Time, isin ...string) (*GetQuotesResponse, error) {
-	endpoints := fmt.Sprintf("quotes?from=%s&to=%s&isin=%s", from.Format(time.RFC3339), to.Format(time.RFC3339), strings.Join(isin, ","))
+func GetQuotes(client *Client, isin ...string) (*GetQuotesResponse, error) {
+	endpoints := fmt.Sprintf("quotes?isin=%s", strings.Join(isin, ","))
 	responseData, err := client.Do("GET", endpoints, nil)
 	if err != nil {
 		return nil, err
@@ -48,8 +82,8 @@ type GetOHLCResponse struct {
 	Results []OHLC `json:"results"`
 }
 
-func GetOHLCPerMinute(client *Client, from time.Time, to time.Time, isin ...string) (*GetOHLCResponse, error) {
-	endpoints := fmt.Sprintf("ohlc/m1?from=%s&to=%s&isin=%s", from.Format(time.RFC3339), to.Format(time.RFC3339), strings.Join(isin, ","))
+func GetOHLCPerMinute(client *Client, from int64, to int64, isin ...string) (*GetOHLCResponse, error) {
+	endpoints := fmt.Sprintf("ohlc/m1?from=%d&to=%d&isin=%s", from, to, strings.Join(isin, ","))
 	responseData, err := client.Do("GET", endpoints, nil)
 	if err != nil {
 		return nil, err
@@ -59,8 +93,8 @@ func GetOHLCPerMinute(client *Client, from time.Time, to time.Time, isin ...stri
 	return getOHLCresponse, err
 }
 
-func GetOHLCPerHour(client *Client, from time.Time, to time.Time, isin ...string) (*GetOHLCResponse, error) {
-	endpoints := fmt.Sprintf("ohlc/h1?from=%s&to=%s&isin=%s", from.Format(time.RFC3339), to.Format(time.RFC3339), strings.Join(isin, ","))
+func GetOHLCPerHour(client *Client, from int64, to int64, isin ...string) (*GetOHLCResponse, error) {
+	endpoints := fmt.Sprintf("ohlc/h1?from=%d&to=%d&isin=%s", from, to, strings.Join(isin, ","))
 	responseData, err := client.Do("GET", endpoints, nil)
 	if err != nil {
 		return nil, err
@@ -70,8 +104,8 @@ func GetOHLCPerHour(client *Client, from time.Time, to time.Time, isin ...string
 	return getOHLCresponse, err
 }
 
-func GetOHLCPerDay(client *Client, from time.Time, to time.Time, isin ...string) (*GetOHLCResponse, error) {
-	endpoints := fmt.Sprintf("ohlc/d1?from=%s&to=%s&isin=%s", from.Format(time.RFC3339), to.Format(time.RFC3339), strings.Join(isin, ","))
+func GetOHLCPerDay(client *Client, from int64, to int64, isin ...string) (*GetOHLCResponse, error) {
+	endpoints := fmt.Sprintf("ohlc/d1?from=%d&to=%d&isin=%s", from, to, strings.Join(isin, ","))
 	responseData, err := client.Do("GET", endpoints, nil)
 	if err != nil {
 		return nil, err
@@ -94,8 +128,8 @@ type GetTradesResponse struct {
 	Results []Trade `json:"results"`
 }
 
-func GetTrades(client *Client, from time.Time, to time.Time, isin ...string) (*GetTradesResponse, error) {
-	endpoints := fmt.Sprintf("quotes?from=%s&to=%s&isin=%s", from.Format(time.RFC3339), to.Format(time.RFC3339), strings.Join(isin, ","))
+func GetTrades(client *Client, from int64, to int64, isin ...string) (*GetTradesResponse, error) {
+	endpoints := fmt.Sprintf("quotes?from=%d&to=%d&isin=%s", from, to, strings.Join(isin, ","))
 	responseData, err := client.Do("GET", endpoints, nil)
 	if err != nil {
 		return nil, err

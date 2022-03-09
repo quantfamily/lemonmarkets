@@ -1,0 +1,33 @@
+{
+  "time": "2021-11-22T15:37:56.520+00:00",
+  "status": "ok",
+  "mode":"paper",
+  "results": {
+    "created_at": "2021-10-12T10:29:49.769+00:00",
+    "account_id": "acc_pyNQNll99hQbXMCS0dRzHyKQCRKYHpy3zg",
+    "firstname": "Michael",
+    "lastname": "Burry",
+    "email": "m_burry@tradingapi.com",
+    "phone": "+491637876521",
+    "address": "Ritterstraße 2A 10969 Berlin",
+    "billing_address": "Ritterstraße 2A 10969 Berlin",
+    "billing_email": "m_burry@tradingapi.com",
+    "billing_name": "Michael Burry",
+    "billing_vat": "DE999999999",
+    "mode": "paper",
+    "deposit_id": "K2057263187",
+    "client_id": "2057263",
+    "account_number": "2057263187",
+    "iban_brokerage": "DE12345678902057263",
+    "iban_origin": "DE123456789012345",
+    "bank_name_origin": "Test Bank",
+    "balance": 100000000,
+    "cash_to_invest": 80000000,
+    "cash_to_withdraw": 20000000,
+    "trading_plan": "basic",
+    "data_plan": "basic",
+    "tax_allowance": null,
+    "tax_allowance_start": null,
+    "tax_allowance_end": null
+  }
+}

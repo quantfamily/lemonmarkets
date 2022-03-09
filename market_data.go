@@ -31,7 +31,7 @@ type Venue struct {
 	Currency string `json:"currency"`
 }
 
-func GetInstruments(client *Client) (*GetInstrumentsResult, error) {
+func GetInstruments(client Client) (*GetInstrumentsResult, error) {
 	responseData, err := client.Do("GET", "instruments", nil)
 	if err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ type GetQuotesResponse struct {
 	Results []Quote `json:"results"`
 }
 
-func GetQuotes(client *Client, isin ...string) (*GetQuotesResponse, error) {
+func GetQuotes(client Client, isin ...string) (*GetQuotesResponse, error) {
 	endpoints := fmt.Sprintf("quotes?isin=%s", strings.Join(isin, ","))
 	responseData, err := client.Do("GET", endpoints, nil)
 	if err != nil {
@@ -82,7 +82,7 @@ type GetOHLCResponse struct {
 	Results []OHLC `json:"results"`
 }
 
-func GetOHLCPerMinute(client *Client, from int64, to int64, isin ...string) (*GetOHLCResponse, error) {
+func GetOHLCPerMinute(client Client, from int64, to int64, isin ...string) (*GetOHLCResponse, error) {
 	endpoints := fmt.Sprintf("ohlc/m1?from=%d&to=%d&isin=%s", from, to, strings.Join(isin, ","))
 	responseData, err := client.Do("GET", endpoints, nil)
 	if err != nil {
@@ -93,7 +93,7 @@ func GetOHLCPerMinute(client *Client, from int64, to int64, isin ...string) (*Ge
 	return getOHLCresponse, err
 }
 
-func GetOHLCPerHour(client *Client, from int64, to int64, isin ...string) (*GetOHLCResponse, error) {
+func GetOHLCPerHour(client Client, from int64, to int64, isin ...string) (*GetOHLCResponse, error) {
 	endpoints := fmt.Sprintf("ohlc/h1?from=%d&to=%d&isin=%s", from, to, strings.Join(isin, ","))
 	responseData, err := client.Do("GET", endpoints, nil)
 	if err != nil {
@@ -104,7 +104,7 @@ func GetOHLCPerHour(client *Client, from int64, to int64, isin ...string) (*GetO
 	return getOHLCresponse, err
 }
 
-func GetOHLCPerDay(client *Client, from int64, to int64, isin ...string) (*GetOHLCResponse, error) {
+func GetOHLCPerDay(client Client, from int64, to int64, isin ...string) (*GetOHLCResponse, error) {
 	endpoints := fmt.Sprintf("ohlc/d1?from=%d&to=%d&isin=%s", from, to, strings.Join(isin, ","))
 	responseData, err := client.Do("GET", endpoints, nil)
 	if err != nil {
@@ -128,7 +128,7 @@ type GetTradesResponse struct {
 	Results []Trade `json:"results"`
 }
 
-func GetTrades(client *Client, from int64, to int64, isin ...string) (*GetTradesResponse, error) {
+func GetTrades(client Client, from int64, to int64, isin ...string) (*GetTradesResponse, error) {
 	endpoints := fmt.Sprintf("quotes?from=%d&to=%d&isin=%s", from, to, strings.Join(isin, ","))
 	responseData, err := client.Do("GET", endpoints, nil)
 	if err != nil {

@@ -45,7 +45,7 @@ type Account struct {
 	Results AccountResult `json:"results"`
 }
 
-func GetAccount(client *Client) (*Account, error) {
+func GetAccount(client Client) (*Account, error) {
 	responseData, err := client.Do("GET", "account", nil)
 	if err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ func GetAccount(client *Client) (*Account, error) {
 	return &account, err
 }
 
-func PlaceOrder(client *Client, order *Order) (*GetOrderResult, error) {
+func PlaceOrder(client Client, order *Order) (*GetOrderResult, error) {
 	orderData, err := json.Marshal(order)
 	if err != nil {
 		return nil, err
@@ -71,12 +71,12 @@ func PlaceOrder(client *Client, order *Order) (*GetOrderResult, error) {
 	return placedOrder, err
 }
 
-func ActivateOrder(client *Client, orderID string) error {
+func ActivateOrder(client Client, orderID string) error {
 	_, err := client.Do("POST", fmt.Sprintf("orders/%s/activate", orderID), nil)
 	return err
 }
 
-func GetOrders(client *Client) (*GetOrdersResult, error) {
+func GetOrders(client Client) (*GetOrdersResult, error) {
 	responseData, err := client.Do("GET", "orders", nil)
 	if err != nil {
 		return nil, err
@@ -87,7 +87,7 @@ func GetOrders(client *Client) (*GetOrdersResult, error) {
 	return orderResult, err
 }
 
-func GetOrder(client *Client, orderID string) (*GetOrderResult, error) {
+func GetOrder(client Client, orderID string) (*GetOrderResult, error) {
 	responseData, err := client.Do("GET", fmt.Sprintf("orders/%s", orderID), nil)
 	if err != nil {
 		return nil, err
@@ -97,7 +97,7 @@ func GetOrder(client *Client, orderID string) (*GetOrderResult, error) {
 	return order, err
 }
 
-func DeleteOrder(client *Client, orderID string) error {
+func DeleteOrder(client Client, orderID string) error {
 	_, err := client.Do("DELETE", fmt.Sprintf("orders/%s", orderID), nil)
 	return err
 }
@@ -159,7 +159,7 @@ type RegulatoryInformation struct {
 	LegalDisclaimer                 string  `json:"legal_disclaimer"`
 }
 
-func GetPortfolio(client *Client) (*GetPortfolioResult, error) {
+func GetPortfolio(client Client) (*GetPortfolioResult, error) {
 	responseData, err := client.Do("GET", "portfolio", nil)
 	if err != nil {
 		return nil, err

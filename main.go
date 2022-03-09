@@ -6,8 +6,35 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
+
+func getErrorResponse(resp *http.Response) error {
+	defer resp.Body.Close()
+	responseBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	lemonError := new(LemonError)
+	err = json.Unmarshal(responseBody, lemonError)
+	if err != nil {
+		return err
+	}
+	return lemonError
+}
+
+type LemonError struct {
+	Time    time.Time `json:"time"`
+	Mode    string    `json:"mode"`
+	Status  string    `json:"status"`
+	Code    string    `json:"error_code"`
+	Message string    `json:"error_message"`
+}
+
+func (e LemonError) Error() string {
+	return e.Message
+}
 
 type Envrionment string
 
@@ -17,17 +44,21 @@ const (
 	DATA  Envrionment = "https://data.lemon.markets/v1"
 )
 
-func NewClient(env Envrionment, apiky string) *Client {
-	c := Client{Envrionment: env, ApiKey: apiky}
-	return &c
+func NewClient(env Envrionment, apiky string) Client {
+	lc := LemonClient{Envrionment: env, ApiKey: apiky}
+	return &lc
 }
 
-type Client struct {
+type Client interface {
+	Do(string, string, []byte) ([]byte, error)
+}
+
+type LemonClient struct {
 	Envrionment Envrionment
 	ApiKey      string
 }
 
-func (c *Client) Do(method string, endpoint string, data []byte) ([]byte, error) {
+func (c *LemonClient) Do(method string, endpoint string, data []byte) ([]byte, error) {
 	url := fmt.Sprintf("%s/%s", c.Envrionment, endpoint)
 	request, err := http.NewRequest(method, url, bytes.NewBuffer(data))
 	if err != nil {
@@ -40,7 +71,12 @@ func (c *Client) Do(method string, endpoint string, data []byte) ([]byte, error)
 	if err != nil {
 		return nil, err
 	}
-
+	if resp.StatusCode == 400 {
+		return nil, getErrorResponse(resp)
+	}
+	if resp.StatusCode > 400 {
+		return nil, fmt.Errorf("unknown http error from backend: %d", resp.StatusCode)
+	}
 	defer resp.Body.Close()
 	responseBody, err := ioutil.ReadAll(resp.Body)
 
@@ -62,23 +98,14 @@ type ListReply struct {
 	Pages    int    `json:"pages"`
 }
 
-func (lr *ListReply) Next(client *Client) error {
-	request, err := http.NewRequest("GET", lr.next, nil)
-	if err != nil {
-		return nil
+func (lr *ListReply) Next(client Client) error {
+	splitted := strings.Split(lr.next, "/v1/")
+	if len(splitted) != 2 {
+		return fmt.Errorf("we are not two")
 	}
-	request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", client.ApiKey))
-	hclient := http.Client{}
-	resp, err := hclient.Do(request)
+	responseData, err := client.Do("GET", splitted[1], nil)
 	if err != nil {
 		return err
 	}
-
-	defer resp.Body.Close()
-	responseBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	return json.Unmarshal(responseBody, lr)
+	return json.Unmarshal(responseData, lr)
 }

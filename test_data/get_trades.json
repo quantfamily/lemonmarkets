@@ -1,0 +1,18 @@
+{
+    "time": "2022-02-14T20:44:03.759+00:00",
+    "results":
+    [
+      {
+        "isin": "US19260Q1076",
+        "p": 274.0,
+        "v": 2,
+        "t": "2021-10-28T09:05:14.474+00:00",
+        "mic": "XMUN"
+        }
+    ],
+    "previous": "https://data.lemon.markets/v1/trades/?isin=US88160R1014&from=2021-11-01&limit=10&page=1", 
+    "next": "https://data.lemon.markets/v1/trades/?isin=US88160R1014&from=2021-11-01&limit=10&page=3", 
+    "total": 999, 
+    "page": 2, 
+    "pages": 10
+  }

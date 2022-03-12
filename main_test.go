@@ -9,14 +9,16 @@ import (
 type MockedClient struct {
 	CalledMethod   string
 	CalledEndpoint string
+	CalledQuery    interface{}
 	CalledData     []byte
 	ReturnData     []byte
 	ReturnError    error
 }
 
-func (mc *MockedClient) Do(method string, endpoint string, data []byte) ([]byte, error) {
+func (mc *MockedClient) Do(method string, endpoint string, q interface{}, data []byte) ([]byte, error) {
 	mc.CalledMethod = method
 	mc.CalledEndpoint = endpoint
+	mc.CalledQuery = q
 	mc.CalledData = data
 	return mc.ReturnData, mc.ReturnError
 }

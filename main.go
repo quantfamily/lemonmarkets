@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/google/go-querystring/query"
 )
 
 func getErrorResponse(resp *http.Response) error {
@@ -50,7 +52,7 @@ func NewClient(env Envrionment, apiky string) Client {
 }
 
 type Client interface {
-	Do(string, string, []byte) ([]byte, error)
+	Do(string, string, interface{}, []byte) ([]byte, error)
 }
 
 type LemonClient struct {
@@ -58,8 +60,16 @@ type LemonClient struct {
 	ApiKey      string
 }
 
-func (c *LemonClient) Do(method string, endpoint string, data []byte) ([]byte, error) {
+func (c *LemonClient) Do(method string, endpoint string, q interface{}, data []byte) ([]byte, error) {
 	url := fmt.Sprintf("%s/%s", c.Envrionment, endpoint)
+	if q != nil {
+		queryString, err := query.Values(q)
+		if err != nil {
+			return nil, err
+		}
+		url = fmt.Sprintf("%s?%s", url, queryString)
+	}
+
 	request, err := http.NewRequest(method, url, bytes.NewBuffer(data))
 	if err != nil {
 		return nil, err
@@ -103,7 +113,7 @@ func (lr *ListReply) Next(client Client) error {
 	if len(splitted) != 2 {
 		return fmt.Errorf("we are not two")
 	}
-	responseData, err := client.Do("GET", splitted[1], nil)
+	responseData, err := client.Do("GET", splitted[1], nil, nil)
 	if err != nil {
 		return err
 	}

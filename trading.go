@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-type AccountResult struct {
+type Account struct {
 	CreatedAt         time.Time `json:"created_at"`
 	AccountID         string    `json:"account_id"`
 	Firstname         string    `json:"firstname"`
@@ -40,74 +40,100 @@ type AccountResult struct {
 	TaxAllowanceEnd   time.Time `json:"tax_allowance_end"`
 }
 
-type Account struct {
+type GetAccountResponse struct {
 	Reply
-	Results AccountResult `json:"results"`
+	Results Account `json:"results"`
 }
 
-func GetAccount(client Client) (*Account, error) {
-	responseData, err := client.Do("GET", "account", nil)
+func GetAccount(client Client) (*GetAccountResponse, error) {
+	responseData, err := client.Do("GET", "account", nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	account := Account{}
+	account := GetAccountResponse{}
 	err = json.Unmarshal(responseData, &account)
 	return &account, err
 }
 
-func PlaceOrder(client Client, order *Order) (*GetOrderResult, error) {
+func CreateOrder(client Client, order *Order) (*CreateOrderResponse, error) {
 	orderData, err := json.Marshal(order)
 	if err != nil {
 		return nil, err
 	}
 
-	responseData, err := client.Do("POST", "orders", orderData)
+	responseData, err := client.Do("POST", "orders", nil, orderData)
 	if err != nil {
 		return nil, err
 	}
-	placedOrder := new(GetOrderResult)
-	err = json.Unmarshal(responseData, placedOrder)
-	return placedOrder, err
+	createdOrder := new(CreateOrderResponse)
+	err = json.Unmarshal(responseData, createdOrder)
+	return createdOrder, err
 }
 
 func ActivateOrder(client Client, orderID string) error {
-	_, err := client.Do("POST", fmt.Sprintf("orders/%s/activate", orderID), nil)
+	_, err := client.Do("POST", fmt.Sprintf("orders/%s/activate", orderID), nil, nil)
 	return err
 }
 
-func GetOrders(client Client) (*GetOrdersResult, error) {
-	responseData, err := client.Do("GET", "orders", nil)
+func GetOrders(client Client, query *GetOrdersQuery) (*GetOrdersResponse, error) {
+	var queryData []byte
+	var err error
+	if query != nil {
+		queryData, err = json.Marshal(query)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	responseData, err := client.Do("GET", "orders", nil, queryData)
 	if err != nil {
 		return nil, err
 
 	}
-	orderResult := new(GetOrdersResult)
+	orderResult := new(GetOrdersResponse)
 	err = json.Unmarshal(responseData, orderResult)
 	return orderResult, err
 }
 
-func GetOrder(client Client, orderID string) (*GetOrderResult, error) {
-	responseData, err := client.Do("GET", fmt.Sprintf("orders/%s", orderID), nil)
+func GetOrder(client Client, orderID string) (*GetOrderResponse, error) {
+	responseData, err := client.Do("GET", fmt.Sprintf("orders/%s", orderID), nil, nil)
 	if err != nil {
 		return nil, err
 	}
-	order := new(GetOrderResult)
+	order := new(GetOrderResponse)
 	err = json.Unmarshal(responseData, order)
 	return order, err
 }
 
 func DeleteOrder(client Client, orderID string) error {
-	_, err := client.Do("DELETE", fmt.Sprintf("orders/%s", orderID), nil)
+	_, err := client.Do("DELETE", fmt.Sprintf("orders/%s", orderID), nil, nil)
 	return err
 }
 
-type GetOrdersResult struct {
+type GetOrdersQuery struct {
+	From          time.Time `json:"from,omitempty"`
+	To            time.Time `json:"to,omitempty"`
+	ISIN          string    `json:"isin,omitempty"`
+	Side          string    `json:"side,omitempty"`
+	Status        string    `json:"status,omitempty"`
+	Type          string    `json:"type,omitempty"`
+	KeyCreationID string    `json:"key_creation_id,omitempty"`
+	Limit         int       `json:"limit,omitempty"`
+	Page          int       `json:"page,omitempty"`
+}
+
+type CreateOrderResponse struct {
+	Reply
+	Results Order `json:"results"`
+}
+
+type GetOrdersResponse struct {
 	ListReply
 	Results []ActivatedOrder `json:"results"`
 }
 
-type GetOrderResult struct {
+type GetOrderResponse struct {
 	Reply
 	Results ActivatedOrder `json:"results"`
 }
@@ -160,7 +186,7 @@ type RegulatoryInformation struct {
 }
 
 func GetPortfolio(client Client) (*GetPortfolioResult, error) {
-	responseData, err := client.Do("GET", "portfolio", nil)
+	responseData, err := client.Do("GET", "portfolio", nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +197,7 @@ func GetPortfolio(client Client) (*GetPortfolioResult, error) {
 
 type GetPortfolioResult struct {
 	ListReply
-	Results PortfolioPosition `json:"results"`
+	Results []PortfolioPosition `json:"results"`
 }
 
 type PortfolioPosition struct {

@@ -1,0 +1,20 @@
+{
+    "time": "2022-02-14T20:44:03.759+00:00",
+    "results":
+    [
+      {
+        "isin": "US88160R1014",
+        "b_v": 87,
+        "a_v": 87,
+        "b": 921.1,
+        "a": 921.1,
+        "t": "2021-10-28T08:51:03.669+00:00",
+        "mic": "XMUN"
+      }
+    ],
+    "previous": "https://data.lemon.markets/v1/quotes/?isin=US88160R1014&from=2021-11-01&limit=10&page=1", 
+    "next": "https://data.lemon.markets/v1/quotes/?isin=US88160R1014&from=2021-11-01&limit=10&page=3", 
+    "total": 999, 
+    "page": 2, 
+    "pages": 10
+  }

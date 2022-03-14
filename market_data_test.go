@@ -166,28 +166,25 @@ func TestGetQuotesIntegration(t *testing.T) {
 
 func TestGetOHLCIntegration(t *testing.T) {
 	client := GetClient(t, DATA)
-	isin := "DE000CBK1001"
+	isins := []string{"DE000CBK1001"}
+	from := time.Now().AddDate(0, -1, 0)
+	to := time.Now()
+	query := GetOHLCQuery{ISIN: isins, From: from, To: to}
 
 	t.Run("Minute", func(t *testing.T) {
-		from := time.Now().AddDate(0, -1, 0).Unix()
-		to := time.Now().Unix()
-		_, err := GetOHLCPerMinute(client, from, to, isin)
+		_, err := GetOHLCPerMinute(client, &query)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 	})
 	t.Run("Hour", func(t *testing.T) {
-		from := time.Now().AddDate(0, -1, 0).Unix()
-		to := time.Now().Unix()
-		_, err := GetOHLCPerHour(client, from, to, isin)
+		_, err := GetOHLCPerHour(client, &query)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 	})
 	t.Run("Day", func(t *testing.T) {
-		from := time.Now().AddDate(0, -1, 0).Unix()
-		to := time.Now().Unix()
-		_, err := GetOHLCPerDay(client, from, to, isin)
+		_, err := GetOHLCPerDay(client, &query)
 		if err != nil {
 			t.Errorf(err.Error())
 		}

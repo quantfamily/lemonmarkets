@@ -21,6 +21,7 @@ func getErrorResponse(resp *http.Response) error {
 	lemonError := new(LemonError)
 	err = json.Unmarshal(responseBody, lemonError)
 	if err != nil {
+		fmt.Println("Unmarshal errro: ", string(responseBody))
 		return err
 	}
 	return lemonError
@@ -38,16 +39,16 @@ func (e LemonError) Error() string {
 	return e.Message
 }
 
-type Envrionment string
+type Environment string
 
 const (
-	PAPER Envrionment = "https://paper-trading.lemon.markets/v1"
-	LIVE  Envrionment = "https://trading.lemon.markets/v1"
-	DATA  Envrionment = "https://data.lemon.markets/v1"
+	PAPER Environment = "https://paper-trading.lemon.markets/v1"
+	LIVE  Environment = "https://trading.lemon.markets/v1"
+	DATA  Environment = "https://data.lemon.markets/v1"
 )
 
-func NewClient(env Envrionment, apiky string) Client {
-	lc := LemonClient{Envrionment: env, ApiKey: apiky}
+func NewClient(env Environment, apiky string) Client {
+	lc := LemonClient{Environment: env, ApiKey: apiky}
 	return &lc
 }
 
@@ -56,12 +57,12 @@ type Client interface {
 }
 
 type LemonClient struct {
-	Envrionment Envrionment
+	Environment Environment
 	ApiKey      string
 }
 
 func (c *LemonClient) Do(method string, endpoint string, q interface{}, data []byte) ([]byte, error) {
-	url := fmt.Sprintf("%s/%s", c.Envrionment, endpoint)
+	url := fmt.Sprintf("%s/%s", c.Environment, endpoint)
 	if q != nil {
 		queryString, err := query.Values(q)
 		if err != nil {
@@ -100,18 +101,21 @@ type Reply struct {
 }
 
 type ListReply struct {
-	Reply
 	previous string `json:"previous"`
 	next     string `json:"next"`
 	Total    int    `json:"total"`
 	Page     int    `json:"page"`
 	Pages    int    `json:"pages"`
+	Reply
 }
 
 func (lr *ListReply) Next(client Client) error {
+	if len(lr.next) == 0 {
+		return fmt.Errorf("end of list")
+	}
 	splitted := strings.Split(lr.next, "/v1/")
 	if len(splitted) != 2 {
-		return fmt.Errorf("we are not two")
+		return fmt.Errorf("url is not correct")
 	}
 	responseData, err := client.Do("GET", splitted[1], nil, nil)
 	if err != nil {

@@ -2,8 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"strings"
 	"time"
 )
 
@@ -111,9 +109,8 @@ type GetOHLCResponse struct {
 	Results []OHLC `json:"results"`
 }
 
-func GetOHLCPerMinute(client Client, from int64, to int64, isin ...string) (*GetOHLCResponse, error) {
-	endpoints := fmt.Sprintf("ohlc/m1?from=%d&to=%d&isin=%s", from, to, strings.Join(isin, ","))
-	responseData, err := client.Do("GET", endpoints, nil, nil)
+func GetOHLCPerMinute(client Client, query *GetOHLCQuery) (*GetOHLCResponse, error) {
+	responseData, err := client.Do("GET", "ohlc/m1", query, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -122,9 +119,8 @@ func GetOHLCPerMinute(client Client, from int64, to int64, isin ...string) (*Get
 	return getOHLCresponse, err
 }
 
-func GetOHLCPerHour(client Client, from int64, to int64, isin ...string) (*GetOHLCResponse, error) {
-	endpoints := fmt.Sprintf("ohlc/h1?from=%d&to=%d&isin=%s", from, to, strings.Join(isin, ","))
-	responseData, err := client.Do("GET", endpoints, nil, nil)
+func GetOHLCPerHour(client Client, query *GetOHLCQuery) (*GetOHLCResponse, error) {
+	responseData, err := client.Do("GET", "ohlc/h1", query, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -133,9 +129,8 @@ func GetOHLCPerHour(client Client, from int64, to int64, isin ...string) (*GetOH
 	return getOHLCresponse, err
 }
 
-func GetOHLCPerDay(client Client, from int64, to int64, isin ...string) (*GetOHLCResponse, error) {
-	endpoints := fmt.Sprintf("ohlc/d1?from=%d&to=%d&isin=%s", from, to, strings.Join(isin, ","))
-	responseData, err := client.Do("GET", endpoints, nil, nil)
+func GetOHLCPerDay(client Client, query *GetOHLCQuery) (*GetOHLCResponse, error) {
+	responseData, err := client.Do("GET", "ohlc/d1", query, nil)
 	if err != nil {
 		return nil, err
 	}

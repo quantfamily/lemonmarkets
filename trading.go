@@ -77,16 +77,7 @@ func ActivateOrder(client Client, orderID string) error {
 }
 
 func GetOrders(client Client, query *GetOrdersQuery) (*GetOrdersResponse, error) {
-	var queryData []byte
-	var err error
-	if query != nil {
-		queryData, err = json.Marshal(query)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	responseData, err := client.Do("GET", "orders", nil, queryData)
+	responseData, err := client.Do("GET", "orders", query, nil)
 	if err != nil {
 		return nil, err
 

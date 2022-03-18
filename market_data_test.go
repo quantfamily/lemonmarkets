@@ -1,4 +1,4 @@
-package main
+package lemonmarkets
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 )
 
 func TestGetInstruments(t *testing.T) {
-	rawFileBytes := ParseFile(t, "test_data/get_instruments.json")
+	rawFileBytes := ParseFile(t, "get_instruments.json")
 	expectedResponse := new(GetInstrumentsResponse)
 
 	t.Run("parse struct", func(t *testing.T) {
@@ -52,7 +52,7 @@ func TestGetInstruments(t *testing.T) {
 }
 
 func TestGetQuotes(t *testing.T) {
-	rawFileBytes := ParseFile(t, "test_data/get_quotes.json")
+	rawFileBytes := ParseFile(t, "get_quotes.json")
 	expectedResponse := new(GetQuotesResponse)
 
 	t.Run("parse struct", func(t *testing.T) {
@@ -95,8 +95,140 @@ func TestGetQuotes(t *testing.T) {
 	})
 }
 
+func TestGetOHLCPerMinute(t *testing.T) {
+	rawFileBytes := ParseFile(t, "get_ohlc.json")
+	expectedResponse := new(GetOHLCResponse)
+
+	t.Run("parse struct", func(t *testing.T) {
+		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
+			t.Errorf("error parsing struct: %w", err)
+		}
+	})
+	t.Run("normal api response", func(t *testing.T) {
+		client := GetMockedClient(t)
+		client.ReturnData = rawFileBytes
+		client.ReturnError = nil
+		clientResponse, err := GetOHLCPerMinute(client, nil)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+		if !reflect.DeepEqual(clientResponse, expectedResponse) {
+			t.Errorf("Not equal")
+		}
+	})
+	t.Run("err api response", func(t *testing.T) {
+		errMessage := "error getting account"
+		lemonErr := LemonError{Message: errMessage}
+
+		client := GetMockedClient(t)
+		client.ReturnData = nil
+		client.ReturnError = lemonErr
+		_, err := GetOHLCPerMinute(client, nil)
+		if err.Error() != errMessage {
+			t.Errorf("Expected %s as error- message, got: %s", errMessage, err.Error())
+		}
+	})
+	t.Run("fail to decode struct", func(t *testing.T) {
+		client := GetMockedClient(t)
+		client.ReturnData = []byte("bad")
+		client.ReturnError = nil
+		_, err := GetOHLCPerMinute(client, nil)
+		if err == nil {
+			t.Errorf("expected error, got, nil")
+		}
+	})
+}
+
+func TestGetOHLCPerHour(t *testing.T) {
+	rawFileBytes := ParseFile(t, "get_ohlc.json")
+	expectedResponse := new(GetOHLCResponse)
+
+	t.Run("parse struct", func(t *testing.T) {
+		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
+			t.Errorf("error parsing struct: %w", err)
+		}
+	})
+	t.Run("normal api response", func(t *testing.T) {
+		client := GetMockedClient(t)
+		client.ReturnData = rawFileBytes
+		client.ReturnError = nil
+		clientResponse, err := GetOHLCPerHour(client, nil)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+		if !reflect.DeepEqual(clientResponse, expectedResponse) {
+			t.Errorf("Not equal")
+		}
+	})
+	t.Run("err api response", func(t *testing.T) {
+		errMessage := "error getting account"
+		lemonErr := LemonError{Message: errMessage}
+
+		client := GetMockedClient(t)
+		client.ReturnData = nil
+		client.ReturnError = lemonErr
+		_, err := GetOHLCPerHour(client, nil)
+		if err.Error() != errMessage {
+			t.Errorf("Expected %s as error- message, got: %s", errMessage, err.Error())
+		}
+	})
+	t.Run("fail to decode struct", func(t *testing.T) {
+		client := GetMockedClient(t)
+		client.ReturnData = []byte("bad")
+		client.ReturnError = nil
+		_, err := GetOHLCPerHour(client, nil)
+		if err == nil {
+			t.Errorf("expected error, got, nil")
+		}
+	})
+}
+
+func TestGetOHLCPerDay(t *testing.T) {
+	rawFileBytes := ParseFile(t, "get_ohlc.json")
+	expectedResponse := new(GetOHLCResponse)
+
+	t.Run("parse struct", func(t *testing.T) {
+		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
+			t.Errorf("error parsing struct: %w", err)
+		}
+	})
+	t.Run("normal api response", func(t *testing.T) {
+		client := GetMockedClient(t)
+		client.ReturnData = rawFileBytes
+		client.ReturnError = nil
+		clientResponse, err := GetOHLCPerDay(client, nil)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+		if !reflect.DeepEqual(clientResponse, expectedResponse) {
+			t.Errorf("Not equal")
+		}
+	})
+	t.Run("err api response", func(t *testing.T) {
+		errMessage := "error getting account"
+		lemonErr := LemonError{Message: errMessage}
+
+		client := GetMockedClient(t)
+		client.ReturnData = nil
+		client.ReturnError = lemonErr
+		_, err := GetOHLCPerDay(client, nil)
+		if err.Error() != errMessage {
+			t.Errorf("Expected %s as error- message, got: %s", errMessage, err.Error())
+		}
+	})
+	t.Run("fail to decode struct", func(t *testing.T) {
+		client := GetMockedClient(t)
+		client.ReturnData = []byte("bad")
+		client.ReturnError = nil
+		_, err := GetOHLCPerDay(client, nil)
+		if err == nil {
+			t.Errorf("expected error, got, nil")
+		}
+	})
+}
+
 func TestGetTrades(t *testing.T) {
-	rawFileBytes := ParseFile(t, "test_data/get_trades.json")
+	rawFileBytes := ParseFile(t, "get_trades.json")
 	expectedResponse := new(GetTradesResponse)
 
 	t.Run("parse struct", func(t *testing.T) {

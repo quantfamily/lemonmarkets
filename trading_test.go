@@ -1,4 +1,4 @@
-package main
+package lemonmarkets
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 )
 
 func TestAccount(t *testing.T) {
-	rawFileBytes := ParseFile(t, "test_data/get_account.json")
+	rawFileBytes := ParseFile(t, "get_account.json")
 	expectedResponse := new(GetAccountResponse)
 
 	t.Run("parse struct", func(t *testing.T) {
@@ -56,7 +56,7 @@ func TestAccount(t *testing.T) {
 
 func TestCreateOrder(t *testing.T) {
 	orderToCreate := Order{ISIN: "123123"}
-	rawFileBytes := ParseFile(t, "test_data/create_order.json")
+	rawFileBytes := ParseFile(t, "create_order.json")
 	expectedResponse := new(CreateOrderResponse)
 
 	t.Run("parse struct", func(t *testing.T) {
@@ -126,7 +126,7 @@ func TestActivateOrder(t *testing.T) {
 }
 
 func TestGetOrders(t *testing.T) {
-	rawFileBytes := ParseFile(t, "test_data/get_orders.json")
+	rawFileBytes := ParseFile(t, "get_orders.json")
 	expectedResponse := new(GetOrdersResponse)
 
 	t.Run("parse struct", func(t *testing.T) {
@@ -182,7 +182,7 @@ func TestGetOrders(t *testing.T) {
 }
 
 func TestGetOrder(t *testing.T) {
-	rawFileBytes := ParseFile(t, "test_data/get_order.json")
+	rawFileBytes := ParseFile(t, "get_order.json")
 	expectedResponse := new(GetOrderResponse)
 
 	t.Run("parse struct", func(t *testing.T) {
@@ -250,7 +250,7 @@ func TestDeleteOrder(t *testing.T) {
 }
 
 func TestPortfolio(t *testing.T) {
-	rawFileBytes := ParseFile(t, "test_data/get_portfolio.json")
+	rawFileBytes := ParseFile(t, "get_portfolio.json")
 	expectedResponse := new(GetPortfolioResult)
 
 	t.Run("parse struct", func(t *testing.T) {
@@ -310,9 +310,9 @@ func TestOrderIntegration(t *testing.T) {
 	var orderID string
 	client := GetClient(t, PAPER)
 	t.Run("Place Order", func(t *testing.T) {
-		expires_at := time.Now().AddDate(0, 0, 14)
+		expiresAt := time.Now().AddDate(0, 0, 14)
 
-		order := Order{ISIN: ISIN, Side: "buy", ExpiresAt: expires_at, Quantity: 1, Venue: "XMUN"}
+		order := Order{ISIN: ISIN, Side: "buy", ExpiresAt: expiresAt, Quantity: 1, Venue: "XMUN"}
 		placed, err := CreateOrder(client, &order)
 		if err != nil {
 			t.Errorf(err.Error())

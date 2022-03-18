@@ -1,0 +1,30 @@
+{
+    "time": "2022-02-14T20:44:03.759+00:00",
+    "results":
+    [
+      {
+        "isin": "US88160R1014",
+        "o": 619.6,
+        "h": 624.1,
+        "l": 612.6,
+        "c": 616.1,
+        "t": "2021-09-02T00:00:00.000+00:00",
+        "mic": "XMUN"
+        },
+        {
+        "isin": "US88160R1014",
+        "o": 616.4,
+        "h": 622.6,
+        "l": 609.5,
+        "c": 617.0,
+        "t": "2021-09-03T00:00:00.000+00:00",
+        "mic": "XMUN"
+        }    
+    ],
+    "previous": "https://data.lemon.markets/v1/ohlc/d1/?isin=US88160R1014&from=2021-11-01&limit=10&page=1", 
+    "next": "https://data.lemon.markets/v1/ohlc/d1/?isin=US88160R1014&from=2021-11-01&limit=10&page=3", 
+    "total": 999, 
+    "page": 2, 
+    "pages": 10
+  }
+  

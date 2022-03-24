@@ -178,7 +178,7 @@ type GetOrdersResponse struct {
 }
 
 /*
-GetOrders can take a query paramters and return one or more orders embedded a result in Response- object
+GetOrders can take a query parameters and return one or more orders embedded a result in Response- object
 */
 func GetOrders(client Client, query *GetOrdersQuery) (*GetOrdersResponse, error) {
 	responseData, err := client.Do("GET", "orders", query, nil)

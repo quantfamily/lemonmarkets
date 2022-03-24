@@ -136,8 +136,8 @@ type Reply struct {
 ListReply includes the information that can be used to get further iterations of the values in a bigger collection
 */
 type ListReply struct {
-	previous string `json:"previous"`
-	next     string `json:"next"`
+	Previous string `json:"previous"`
+	Next     string `json:"next"`
 	Total    int    `json:"total"`
 	Page     int    `json:"page"`
 	Pages    int    `json:"pages"`
@@ -147,11 +147,11 @@ type ListReply struct {
 /*
 Next will call the backend for the next list of items of a particular collection and Update its structure
 */
-func (lr *ListReply) Next(client Client) error {
-	if len(lr.next) == 0 {
+func (lr *ListReply) QueryNext(client Client, s interface{}) error {
+	if len(lr.Next) == 0 {
 		return fmt.Errorf("end of list")
 	}
-	splitted := strings.Split(lr.next, "/v1/")
+	splitted := strings.Split(lr.Next, "/v1/")
 	if len(splitted) != 2 {
 		return fmt.Errorf("url is not correct")
 	}
@@ -159,5 +159,5 @@ func (lr *ListReply) Next(client Client) error {
 	if err != nil {
 		return err
 	}
-	return json.Unmarshal(responseData, lr)
+	return json.Unmarshal(responseData, s)
 }

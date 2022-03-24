@@ -2,6 +2,7 @@ package lemonmarkets
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -13,7 +14,7 @@ func TestGetInstruments(t *testing.T) {
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
-			t.Errorf("error parsing struct: %w", err)
+			t.Errorf("error parsing struct: %v", err)
 		}
 	})
 	t.Run("normal api response", func(t *testing.T) {
@@ -57,7 +58,7 @@ func TestGetQuotes(t *testing.T) {
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
-			t.Errorf("error parsing struct: %w", err)
+			t.Errorf("error parsing struct: %v", err)
 		}
 	})
 	t.Run("normal api response", func(t *testing.T) {
@@ -101,7 +102,7 @@ func TestGetOHLCPerMinute(t *testing.T) {
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
-			t.Errorf("error parsing struct: %w", err)
+			t.Errorf("error parsing struct: %v", err)
 		}
 	})
 	t.Run("normal api response", func(t *testing.T) {
@@ -145,7 +146,7 @@ func TestGetOHLCPerHour(t *testing.T) {
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
-			t.Errorf("error parsing struct: %w", err)
+			t.Errorf("error parsing struct: %v", err)
 		}
 	})
 	t.Run("normal api response", func(t *testing.T) {
@@ -189,7 +190,7 @@ func TestGetOHLCPerDay(t *testing.T) {
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
-			t.Errorf("error parsing struct: %w", err)
+			t.Errorf("error parsing struct: %v", err)
 		}
 	})
 	t.Run("normal api response", func(t *testing.T) {
@@ -233,7 +234,7 @@ func TestGetTrades(t *testing.T) {
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
-			t.Errorf("error parsing struct: %w", err)
+			t.Errorf("error parsing struct: %v", err)
 		}
 	})
 	t.Run("normal api response", func(t *testing.T) {
@@ -278,10 +279,19 @@ func TestGetTrades(t *testing.T) {
 func TestGetInstrumentsIntegration(t *testing.T) {
 	client := GetClient(t, DATA)
 
-	_, err := GetInstruments(client, nil)
+	instruments, err := GetInstruments(client, nil)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+	fmt.Println("Instruments:", instruments.Results[1])
+	fmt.Println(instruments.Next)
+	err = instruments.QueryNext(client, instruments)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	fmt.Println("Instruments:", instruments.Results[1])
+	fmt.Println(instruments.Next)
+
 }
 
 func TestGetQuotesIntegration(t *testing.T) {
@@ -299,23 +309,29 @@ func TestGetQuotesIntegration(t *testing.T) {
 func TestGetOHLCIntegration(t *testing.T) {
 	client := GetClient(t, DATA)
 	isins := []string{"DE000CBK1001"}
-	from := time.Now().AddDate(0, -1, 0)
-	to := time.Now()
-	query := GetOHLCQuery{ISIN: isins, From: from, To: to}
 
 	t.Run("Minute", func(t *testing.T) {
+		to := time.Now().AddDate(0, 0, 0)
+		from := time.Now().Add(time.Duration(-time.Hour))
+		query := GetOHLCQuery{ISIN: isins, From: from, To: to}
 		_, err := GetOHLCPerMinute(client, &query)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 	})
 	t.Run("Hour", func(t *testing.T) {
+		to := time.Now().AddDate(0, 0, 0)
+		from := time.Now().Add(time.Duration(-time.Hour))
+		query := GetOHLCQuery{ISIN: isins, From: from, To: to}
 		_, err := GetOHLCPerHour(client, &query)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 	})
 	t.Run("Day", func(t *testing.T) {
+		from := time.Now().AddDate(0, -1, 0)
+		to := time.Now()
+		query := GetOHLCQuery{ISIN: isins, From: from, To: to}
 		_, err := GetOHLCPerDay(client, &query)
 		if err != nil {
 			t.Errorf(err.Error())

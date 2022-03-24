@@ -123,8 +123,8 @@ Read more at: https://docs.lemon.markets/market-data/historical-data#get-ohlcx1
 type GetOHLCQuery struct {
 	ISIN    []string  `url:"isin,omitempty"`
 	MIC     string    `url:"mic,omitempty"`
-	From    time.Time `url:"from,omitempty"`
-	To      time.Time `url:"to,omitempty"`
+	From    time.Time `url:"from,omitempty" layout:"2006-01-02T15:04:05Z07:00"`
+	To      time.Time `url:"to,omitempty" layout:"2006-01-02T15:04:05Z07:00"`
 	Sorting string    `url:"sorting,omitempty"`
 	Limit   int       `url:"limit,omitempty"`
 	Page    int       `url:"page,omitempty"`
@@ -143,13 +143,14 @@ type GetOHLCResponse struct {
 OHLC (Open, High, Low, Closed) containing information regarding how a instrument preformed during a period of time
 */
 type OHLC struct {
-	ISIN  string    `json:"isin"`
-	Open  float32   `json:"open"`
-	High  float32   `json:"high"`
-	Low   float32   `json:"low"`
-	Close float32   `json:"close"`
-	Time  time.Time `json:"t"`
-	Mic   string    `json:"mic"`
+	ISIN   string    `json:"isin"`
+	Open   float64   `json:"o"`
+	High   float64   `json:"h"`
+	Low    float64   `json:"l"`
+	Close  float64   `json:"c"`
+	Volume int       `json:"v"`
+	Time   time.Time `json:"t"`
+	Mic    string    `json:"mic"`
 }
 
 /*

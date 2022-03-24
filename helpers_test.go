@@ -45,13 +45,13 @@ func ParseFile(t *testing.T, fileName string) []byte {
 	filePath, _ := filepath.Abs(fmt.Sprintf("test_data/%s", fileName))
 	file, err := os.Open(filePath)
 	if err != nil {
-		t.Errorf("Error opening file for test: %w", err)
+		t.Errorf("Error opening file for test: %v", err)
 		return nil
 	}
 	defer file.Close()
 	bytes, err := ioutil.ReadAll(file)
 	if err != nil {
-		t.Errorf("Error reading bytes from file: %w", err)
+		t.Errorf("Error reading bytes from file: %v", err)
 		return nil
 	}
 	return bytes

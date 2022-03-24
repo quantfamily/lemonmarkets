@@ -13,7 +13,7 @@ func TestAccount(t *testing.T) {
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
-			t.Errorf("error parsing struct: %w", err)
+			t.Errorf("error parsing struct: %v", err)
 		}
 		if expectedResponse.Status != "ok" {
 			t.Errorf("Expected status to be ok, got: %s", expectedResponse.Status)
@@ -61,7 +61,7 @@ func TestCreateOrder(t *testing.T) {
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
-			t.Errorf("error parsing struct: %w", err)
+			t.Errorf("error parsing struct: %v", err)
 		}
 		if expectedResponse.Status != "ok" {
 			t.Errorf("Expected status to be ok, got: %s", expectedResponse.Status)
@@ -109,7 +109,7 @@ func TestActivateOrder(t *testing.T) {
 		client.ReturnError = nil
 		err := ActivateOrder(client, "abc123")
 		if err != nil {
-			t.Errorf("Expected nil error, got %w", err)
+			t.Errorf("Expected nil error, got %v", err)
 		}
 	})
 	t.Run("error response", func(t *testing.T) {
@@ -131,7 +131,7 @@ func TestGetOrders(t *testing.T) {
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
-			t.Errorf("error parsing struct: %w", err)
+			t.Errorf("error parsing struct: %v", err)
 		}
 		if expectedResponse.Status != "ok" {
 			t.Errorf("Expected status to be ok, got: %s", expectedResponse.Status)
@@ -187,7 +187,7 @@ func TestGetOrder(t *testing.T) {
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
-			t.Errorf("error parsing struct: %w", err)
+			t.Errorf("error parsing struct: %v", err)
 		}
 		if expectedResponse.Status != "ok" {
 			t.Errorf("Expected status to be ok, got: %s", expectedResponse.Status)
@@ -233,7 +233,7 @@ func TestDeleteOrder(t *testing.T) {
 		client.ReturnError = nil
 		err := DeleteOrder(client, "abc123")
 		if err != nil {
-			t.Errorf("Expected nil error, got %w", err)
+			t.Errorf("Expected nil error, got %v", err)
 		}
 	})
 	t.Run("err api response", func(t *testing.T) {
@@ -255,7 +255,7 @@ func TestPortfolio(t *testing.T) {
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
-			t.Errorf("error parsing struct: %w", err)
+			t.Errorf("error parsing struct: %v", err)
 		}
 		if expectedResponse.Status != "ok" {
 			t.Errorf("Expected status to be ok, got: %s", expectedResponse.Status)
@@ -301,7 +301,7 @@ func TestAccountIntegration(t *testing.T) {
 	client := GetClient(t, PAPER)
 	_, err := GetAccount(client)
 	if err != nil {
-		t.Errorf("Failure to get account %w", err)
+		t.Errorf("Failure to get account %v", err)
 	}
 }
 

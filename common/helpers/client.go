@@ -1,4 +1,4 @@
-package lemonmarkets
+package helpers
 
 import (
 	"fmt"
@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/quantfamily/lemonmarkets/common"
 )
 
 type MockedClient struct {
@@ -13,31 +15,21 @@ type MockedClient struct {
 	CalledEndpoint string
 	CalledQuery    interface{}
 	CalledData     []byte
-	ReturnData     []byte
+	ReturnResponse *common.Response
 	ReturnError    error
 }
 
-func (mc *MockedClient) Do(method string, endpoint string, q interface{}, data []byte) ([]byte, error) {
+func (mc *MockedClient) Do(method string, endpoint string, query interface{}, data []byte) (*common.Response, error) {
 	mc.CalledMethod = method
 	mc.CalledEndpoint = endpoint
-	mc.CalledQuery = q
+	mc.CalledQuery = query
 	mc.CalledData = data
-	return mc.ReturnData, mc.ReturnError
+	return mc.ReturnResponse, mc.ReturnError
 }
 
 func GetMockedClient(t *testing.T) *MockedClient {
 	t.Helper()
 	return new(MockedClient)
-}
-
-func GetClient(t *testing.T, env Environment) Client {
-	t.Helper()
-	apiKey, isSet := os.LookupEnv("LEMON_API_KEY")
-	if !isSet {
-		t.Skip("missing environment variable LEMON_API_KEY")
-	}
-	c := LemonClient{Environment: env, APIKey: apiKey}
-	return &c
 }
 
 func ParseFile(t *testing.T, fileName string) []byte {
@@ -55,4 +47,13 @@ func ParseFile(t *testing.T, fileName string) []byte {
 		return nil
 	}
 	return bytes
+}
+
+func APIKey(t *testing.T) string {
+	t.Helper()
+	apiKey, isSet := os.LookupEnv("LEMON_API_KEY")
+	if !isSet {
+		t.Skip("missing environment variable LEMON_API_KEY")
+	}
+	return apiKey
 }

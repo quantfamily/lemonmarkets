@@ -1,16 +1,18 @@
-package lemonmarkets
+package market_data
 
 import (
 	"encoding/json"
-	"fmt"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/quantfamily/lemonmarkets/common"
+	"github.com/quantfamily/lemonmarkets/common/helpers"
 )
 
 func TestGetInstruments(t *testing.T) {
-	rawFileBytes := ParseFile(t, "get_instruments.json")
-	expectedResponse := new(GetInstrumentsResponse)
+	rawFileBytes := helpers.ParseFile(t, "get_instruments.json")
+	expectedResponse := new(common.Response)
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
@@ -18,8 +20,8 @@ func TestGetInstruments(t *testing.T) {
 		}
 	})
 	t.Run("normal api response", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = rawFileBytes
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = expectedResponse
 		client.ReturnError = nil
 		clientResponse, err := GetInstruments(client, nil)
 		if err != nil {
@@ -31,30 +33,21 @@ func TestGetInstruments(t *testing.T) {
 	})
 	t.Run("err api response", func(t *testing.T) {
 		errMessage := "error getting account"
-		lemonErr := LemonError{Message: errMessage}
+		lemonErr := common.LemonError{Message: errMessage}
 
-		client := GetMockedClient(t)
-		client.ReturnData = nil
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = nil
 		client.ReturnError = lemonErr
 		_, err := GetInstruments(client, nil)
 		if err.Error() != errMessage {
 			t.Errorf("Expected %s as error- message, got: %s", errMessage, err.Error())
 		}
 	})
-	t.Run("fail to decode struct", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = []byte("bad")
-		client.ReturnError = nil
-		_, err := GetInstruments(client, nil)
-		if err == nil {
-			t.Errorf("expected error, got, nil")
-		}
-	})
 }
 
 func TestGetQuotes(t *testing.T) {
-	rawFileBytes := ParseFile(t, "get_quotes.json")
-	expectedResponse := new(GetQuotesResponse)
+	rawFileBytes := helpers.ParseFile(t, "get_quotes.json")
+	expectedResponse := new(common.Response)
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
@@ -62,8 +55,8 @@ func TestGetQuotes(t *testing.T) {
 		}
 	})
 	t.Run("normal api response", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = rawFileBytes
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = expectedResponse
 		client.ReturnError = nil
 		clientResponse, err := GetQuotes(client, nil)
 		if err != nil {
@@ -75,30 +68,20 @@ func TestGetQuotes(t *testing.T) {
 	})
 	t.Run("err api response", func(t *testing.T) {
 		errMessage := "error getting account"
-		lemonErr := LemonError{Message: errMessage}
+		lemonErr := common.LemonError{Message: errMessage}
 
-		client := GetMockedClient(t)
-		client.ReturnData = nil
+		client := helpers.GetMockedClient(t)
 		client.ReturnError = lemonErr
 		_, err := GetQuotes(client, nil)
 		if err.Error() != errMessage {
 			t.Errorf("Expected %s as error- message, got: %s", errMessage, err.Error())
 		}
 	})
-	t.Run("fail to decode struct", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = []byte("bad")
-		client.ReturnError = nil
-		_, err := GetQuotes(client, nil)
-		if err == nil {
-			t.Errorf("expected error, got, nil")
-		}
-	})
 }
 
 func TestGetOHLCPerMinute(t *testing.T) {
-	rawFileBytes := ParseFile(t, "get_ohlc.json")
-	expectedResponse := new(GetOHLCResponse)
+	rawFileBytes := helpers.ParseFile(t, "get_ohlc.json")
+	expectedResponse := new(common.Response)
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
@@ -106,8 +89,8 @@ func TestGetOHLCPerMinute(t *testing.T) {
 		}
 	})
 	t.Run("normal api response", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = rawFileBytes
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = expectedResponse
 		client.ReturnError = nil
 		clientResponse, err := GetOHLCPerMinute(client, nil)
 		if err != nil {
@@ -119,30 +102,20 @@ func TestGetOHLCPerMinute(t *testing.T) {
 	})
 	t.Run("err api response", func(t *testing.T) {
 		errMessage := "error getting account"
-		lemonErr := LemonError{Message: errMessage}
+		lemonErr := common.LemonError{Message: errMessage}
 
-		client := GetMockedClient(t)
-		client.ReturnData = nil
+		client := helpers.GetMockedClient(t)
 		client.ReturnError = lemonErr
 		_, err := GetOHLCPerMinute(client, nil)
 		if err.Error() != errMessage {
 			t.Errorf("Expected %s as error- message, got: %s", errMessage, err.Error())
 		}
 	})
-	t.Run("fail to decode struct", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = []byte("bad")
-		client.ReturnError = nil
-		_, err := GetOHLCPerMinute(client, nil)
-		if err == nil {
-			t.Errorf("expected error, got, nil")
-		}
-	})
 }
 
 func TestGetOHLCPerHour(t *testing.T) {
-	rawFileBytes := ParseFile(t, "get_ohlc.json")
-	expectedResponse := new(GetOHLCResponse)
+	rawFileBytes := helpers.ParseFile(t, "get_ohlc.json")
+	expectedResponse := new(common.Response)
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
@@ -150,8 +123,8 @@ func TestGetOHLCPerHour(t *testing.T) {
 		}
 	})
 	t.Run("normal api response", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = rawFileBytes
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = expectedResponse
 		client.ReturnError = nil
 		clientResponse, err := GetOHLCPerHour(client, nil)
 		if err != nil {
@@ -163,30 +136,20 @@ func TestGetOHLCPerHour(t *testing.T) {
 	})
 	t.Run("err api response", func(t *testing.T) {
 		errMessage := "error getting account"
-		lemonErr := LemonError{Message: errMessage}
+		lemonErr := common.LemonError{Message: errMessage}
 
-		client := GetMockedClient(t)
-		client.ReturnData = nil
+		client := helpers.GetMockedClient(t)
 		client.ReturnError = lemonErr
 		_, err := GetOHLCPerHour(client, nil)
 		if err.Error() != errMessage {
 			t.Errorf("Expected %s as error- message, got: %s", errMessage, err.Error())
 		}
 	})
-	t.Run("fail to decode struct", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = []byte("bad")
-		client.ReturnError = nil
-		_, err := GetOHLCPerHour(client, nil)
-		if err == nil {
-			t.Errorf("expected error, got, nil")
-		}
-	})
 }
 
 func TestGetOHLCPerDay(t *testing.T) {
-	rawFileBytes := ParseFile(t, "get_ohlc.json")
-	expectedResponse := new(GetOHLCResponse)
+	rawFileBytes := helpers.ParseFile(t, "get_ohlc.json")
+	expectedResponse := new(common.Response)
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
@@ -194,8 +157,8 @@ func TestGetOHLCPerDay(t *testing.T) {
 		}
 	})
 	t.Run("normal api response", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = rawFileBytes
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = expectedResponse
 		client.ReturnError = nil
 		clientResponse, err := GetOHLCPerDay(client, nil)
 		if err != nil {
@@ -207,30 +170,20 @@ func TestGetOHLCPerDay(t *testing.T) {
 	})
 	t.Run("err api response", func(t *testing.T) {
 		errMessage := "error getting account"
-		lemonErr := LemonError{Message: errMessage}
+		lemonErr := common.LemonError{Message: errMessage}
 
-		client := GetMockedClient(t)
-		client.ReturnData = nil
+		client := helpers.GetMockedClient(t)
 		client.ReturnError = lemonErr
 		_, err := GetOHLCPerDay(client, nil)
 		if err.Error() != errMessage {
 			t.Errorf("Expected %s as error- message, got: %s", errMessage, err.Error())
 		}
 	})
-	t.Run("fail to decode struct", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = []byte("bad")
-		client.ReturnError = nil
-		_, err := GetOHLCPerDay(client, nil)
-		if err == nil {
-			t.Errorf("expected error, got, nil")
-		}
-	})
 }
 
 func TestGetTrades(t *testing.T) {
-	rawFileBytes := ParseFile(t, "get_trades.json")
-	expectedResponse := new(GetTradesResponse)
+	rawFileBytes := helpers.ParseFile(t, "get_trades.json")
+	expectedResponse := new(common.Response)
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
@@ -238,8 +191,8 @@ func TestGetTrades(t *testing.T) {
 		}
 	})
 	t.Run("normal api response", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = rawFileBytes
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = expectedResponse
 		client.ReturnError = nil
 		clientResponse, err := GetTrades(client, nil)
 		if err != nil {
@@ -251,23 +204,13 @@ func TestGetTrades(t *testing.T) {
 	})
 	t.Run("err api response", func(t *testing.T) {
 		errMessage := "error getting account"
-		lemonErr := LemonError{Message: errMessage}
+		lemonErr := common.LemonError{Message: errMessage}
 
-		client := GetMockedClient(t)
-		client.ReturnData = nil
+		client := helpers.GetMockedClient(t)
 		client.ReturnError = lemonErr
 		_, err := GetTrades(client, nil)
 		if err.Error() != errMessage {
 			t.Errorf("Expected %s as error- message, got: %s", errMessage, err.Error())
-		}
-	})
-	t.Run("fail to decode struct", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = []byte("bad")
-		client.ReturnError = nil
-		_, err := GetTrades(client, nil)
-		if err == nil {
-			t.Errorf("expected error, got, nil")
 		}
 	})
 }
@@ -277,25 +220,16 @@ func TestGetTrades(t *testing.T) {
 */
 
 func TestGetInstrumentsIntegration(t *testing.T) {
-	client := GetClient(t, DATA)
+	client := NewClient(helpers.APIKey(t))
 
-	instruments, err := GetInstruments(client, nil)
+	_, err := GetInstruments(client, nil)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	fmt.Println("Instruments:", instruments.Results[1])
-	fmt.Println(instruments.Next)
-	err = instruments.QueryNext(client, instruments)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	fmt.Println("Instruments:", instruments.Results[1])
-	fmt.Println(instruments.Next)
-
 }
 
 func TestGetQuotesIntegration(t *testing.T) {
-	client := GetClient(t, DATA)
+	client := NewClient(helpers.APIKey(t))
 
 	isins := []string{"DE000CBK1001"}
 	query := GetQuotesQuery{ISIN: isins}
@@ -307,7 +241,7 @@ func TestGetQuotesIntegration(t *testing.T) {
 }
 
 func TestGetOHLCIntegration(t *testing.T) {
-	client := GetClient(t, DATA)
+	client := NewClient(helpers.APIKey(t))
 	isins := []string{"DE000CBK1001"}
 
 	t.Run("Minute", func(t *testing.T) {
@@ -340,11 +274,11 @@ func TestGetOHLCIntegration(t *testing.T) {
 }
 
 func TestGetTradesIntegration(t *testing.T) {
-	client := GetClient(t, DATA)
+	client := NewClient(helpers.APIKey(t))
 	from := time.Now().AddDate(0, -1, 0)
 	to := time.Now()
 	isins := []string{"DE000CBK1001"}
-	query := GetTradesQuery{ISIN: isins, From: from, To: to}
+	query := TradesQuery{ISIN: isins, From: from, To: to}
 	_, err := GetTrades(client, &query)
 	if err != nil {
 		t.Errorf(err.Error())

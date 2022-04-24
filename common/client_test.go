@@ -1,12 +1,6 @@
-package lemonmarkets
+package common
 
-import (
-	"encoding/json"
-	"net/http"
-	"net/http/httptest"
-	"testing"
-)
-
+/*
 func TestClient(t *testing.T) {
 	t.Run("Do, get LemonError", func(t *testing.T) {
 		errMessage := "generic error message"
@@ -74,66 +68,6 @@ func TestClient(t *testing.T) {
 		_, err := client.Do("demo", "demo", &query, nil)
 		if err != nil {
 			t.Errorf("Expected nil, got error: %v", err)
-		}
-	})
-}
-
-/*
-func TestListReply(t *testing.T) {
-	t.Run("Next, next is empty", func(t *testing.T) {
-		lr := ListReply{}
-		client := NewClient(PAPER, "")
-
-		err := lr.QueryNext(client)
-		if err == nil {
-			t.Errorf("expected error, got nil")
-		}
-		if err.Error() != "end of list" {
-			t.Errorf("expected end of list, got: %v", err)
-		}
-	})
-	t.Run("Next, url is not correct", func(t *testing.T) {
-		lr := ListReply{Next: "http://bad_url.com/no/v2/no"}
-		client := NewClient(PAPER, "")
-
-		err := lr.QueryNext(client)
-		if err == nil {
-			t.Errorf("expected error, got nil")
-		}
-		if err.Error() != "url is not correct" {
-			t.Errorf("expected url is not correct, got: %v", err)
-		}
-	})
-	t.Run("Next client error", func(t *testing.T) {
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusBadGateway)
-			w.Write([]byte("very bad"))
-		}))
-		defer server.Close()
-
-		lr := ListReply{Next: "http://bad_url.com/works/v1/omg_call"}
-		client := LemonClient{Environment: Environment(server.URL)}
-
-		err := lr.QueryNext(&client)
-		if err == nil {
-			t.Errorf("expected error, got nil")
-		}
-	})
-	t.Run("Next, all OK", func(t *testing.T) {
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-			lr := ListReply{Reply: Reply{Status: "OK"}}
-			responseBytes, _ := json.Marshal(&lr)
-			w.Write(responseBytes)
-		}))
-		defer server.Close()
-
-		lr := ListReply{Next: "http://good_url.com/works/v1/omg_call"}
-		client := LemonClient{Environment: Environment(server.URL)}
-
-		err := lr.QueryNext(&client)
-		if err != nil {
-			t.Errorf("expected nil, got error: %v", err)
 		}
 	})
 }

@@ -1,15 +1,18 @@
-package lemonmarkets
+package trading
 
 import (
 	"encoding/json"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/quantfamily/lemonmarkets/common"
+	"github.com/quantfamily/lemonmarkets/common/helpers"
 )
 
 func TestAccount(t *testing.T) {
-	rawFileBytes := ParseFile(t, "get_account.json")
-	expectedResponse := new(GetAccountResponse)
+	rawFileBytes := helpers.ParseFile(t, "get_account.json")
+	expectedResponse := new(common.Response)
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
@@ -20,8 +23,8 @@ func TestAccount(t *testing.T) {
 		}
 	})
 	t.Run("normal api response", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = rawFileBytes
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = expectedResponse
 		client.ReturnError = nil
 		clientResponse, err := GetAccount(client)
 		if err != nil {
@@ -33,31 +36,22 @@ func TestAccount(t *testing.T) {
 	})
 	t.Run("err api response", func(t *testing.T) {
 		errMessage := "error getting account"
-		lemonErr := LemonError{Message: errMessage}
+		lemonErr := common.LemonError{Message: errMessage}
 
-		client := GetMockedClient(t)
-		client.ReturnData = nil
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = nil
 		client.ReturnError = lemonErr
 		_, err := GetAccount(client)
 		if err.Error() != errMessage {
 			t.Errorf("Expected %s as error- message, got: %s", errMessage, err.Error())
 		}
 	})
-	t.Run("fail to decode struct", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = []byte("bad")
-		client.ReturnError = nil
-		_, err := GetAccount(client)
-		if err == nil {
-			t.Errorf("expected error, got, nil")
-		}
-	})
 }
 
 func TestCreateOrder(t *testing.T) {
 	orderToCreate := Order{ISIN: "123123"}
-	rawFileBytes := ParseFile(t, "create_order.json")
-	expectedResponse := new(CreateOrderResponse)
+	rawFileBytes := helpers.ParseFile(t, "create_order.json")
+	expectedResponse := new(common.Response)
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
@@ -68,8 +62,8 @@ func TestCreateOrder(t *testing.T) {
 		}
 	})
 	t.Run("normal api response", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = rawFileBytes
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = expectedResponse
 		client.ReturnError = nil
 		clientResponse, err := CreateOrder(client, &orderToCreate)
 		if err != nil {
@@ -81,31 +75,22 @@ func TestCreateOrder(t *testing.T) {
 	})
 	t.Run("err api response", func(t *testing.T) {
 		errMessage := "error creating order"
-		lemonErr := LemonError{Message: errMessage}
+		lemonErr := common.LemonError{Message: errMessage}
 
-		client := GetMockedClient(t)
-		client.ReturnData = nil
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = nil
 		client.ReturnError = lemonErr
 		_, err := CreateOrder(client, &orderToCreate)
 		if err.Error() != errMessage {
 			t.Errorf("Expected %s as error- message, got: %s", errMessage, err.Error())
 		}
 	})
-	t.Run("fail to decode struct", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = []byte("bad")
-		client.ReturnError = nil
-		_, err := CreateOrder(client, &orderToCreate)
-		if err == nil {
-			t.Errorf("expected error, got, nil")
-		}
-	})
 }
 
 func TestActivateOrder(t *testing.T) {
 	t.Run("normal response", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = nil
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = nil
 		client.ReturnError = nil
 		err := ActivateOrder(client, "abc123")
 		if err != nil {
@@ -114,9 +99,9 @@ func TestActivateOrder(t *testing.T) {
 	})
 	t.Run("error response", func(t *testing.T) {
 		errMessage := "error deleting order"
-		lemonErr := LemonError{Message: errMessage}
-		client := GetMockedClient(t)
-		client.ReturnData = nil
+		lemonErr := common.LemonError{Message: errMessage}
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = nil
 		client.ReturnError = lemonErr
 		err := ActivateOrder(client, "abc123")
 		if err == nil {
@@ -126,8 +111,8 @@ func TestActivateOrder(t *testing.T) {
 }
 
 func TestGetOrders(t *testing.T) {
-	rawFileBytes := ParseFile(t, "get_orders.json")
-	expectedResponse := new(GetOrdersResponse)
+	rawFileBytes := helpers.ParseFile(t, "get_orders.json")
+	expectedResponse := new(common.Response)
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
@@ -138,8 +123,8 @@ func TestGetOrders(t *testing.T) {
 		}
 	})
 	t.Run("normal api response, nil query", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = rawFileBytes
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = expectedResponse
 		client.ReturnError = nil
 
 		_, err := GetOrders(client, nil)
@@ -148,8 +133,8 @@ func TestGetOrders(t *testing.T) {
 		}
 	})
 	t.Run("normal api response, with query", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = rawFileBytes
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = expectedResponse
 		client.ReturnError = nil
 		query := GetOrdersQuery{Side: "buy"}
 
@@ -160,30 +145,21 @@ func TestGetOrders(t *testing.T) {
 	})
 	t.Run("err api response", func(t *testing.T) {
 		errMessage := "error placing order"
-		lemonErr := LemonError{Message: errMessage}
+		lemonErr := common.LemonError{Message: errMessage}
 
-		client := GetMockedClient(t)
-		client.ReturnData = nil
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = nil
 		client.ReturnError = lemonErr
 		_, err := GetOrders(client, nil)
 		if err.Error() != errMessage {
 			t.Errorf("Expected %s as error- message, got: %s", errMessage, err.Error())
 		}
 	})
-	t.Run("fail to decode struct", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = []byte("bad")
-		client.ReturnError = nil
-		_, err := GetOrders(client, nil)
-		if err == nil {
-			t.Errorf("expected error, got, nil")
-		}
-	})
 }
 
 func TestGetOrder(t *testing.T) {
-	rawFileBytes := ParseFile(t, "get_order.json")
-	expectedResponse := new(GetOrderResponse)
+	rawFileBytes := helpers.ParseFile(t, "get_order.json")
+	expectedResponse := new(common.Response)
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
@@ -194,8 +170,8 @@ func TestGetOrder(t *testing.T) {
 		}
 	})
 	t.Run("normal api response", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = rawFileBytes
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = expectedResponse
 		client.ReturnError = nil
 
 		_, err := GetOrder(client, "123")
@@ -205,31 +181,22 @@ func TestGetOrder(t *testing.T) {
 	})
 	t.Run("err api response", func(t *testing.T) {
 		errMessage := "error placing order"
-		lemonErr := LemonError{Message: errMessage}
+		lemonErr := common.LemonError{Message: errMessage}
 
-		client := GetMockedClient(t)
-		client.ReturnData = nil
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = nil
 		client.ReturnError = lemonErr
 		_, err := GetOrder(client, "123")
 		if err.Error() != errMessage {
 			t.Errorf("Expected %s as error- message, got: %s", errMessage, err.Error())
 		}
 	})
-	t.Run("fail to decode struct", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = []byte("bad")
-		client.ReturnError = nil
-		_, err := GetOrder(client, "123")
-		if err == nil {
-			t.Errorf("expected error, got, nil")
-		}
-	})
 }
 
 func TestDeleteOrder(t *testing.T) {
 	t.Run("delete, normal", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = nil
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = nil
 		client.ReturnError = nil
 		err := DeleteOrder(client, "abc123")
 		if err != nil {
@@ -238,9 +205,9 @@ func TestDeleteOrder(t *testing.T) {
 	})
 	t.Run("err api response", func(t *testing.T) {
 		errMessage := "error deleting order"
-		lemonErr := LemonError{Message: errMessage}
-		client := GetMockedClient(t)
-		client.ReturnData = nil
+		lemonErr := common.LemonError{Message: errMessage}
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = nil
 		client.ReturnError = lemonErr
 		err := DeleteOrder(client, "abc123")
 		if err == nil {
@@ -249,9 +216,9 @@ func TestDeleteOrder(t *testing.T) {
 	})
 }
 
-func TestPortfolio(t *testing.T) {
-	rawFileBytes := ParseFile(t, "get_portfolio.json")
-	expectedResponse := new(GetPortfolioResult)
+func TestPositions(t *testing.T) {
+	rawFileBytes := helpers.ParseFile(t, "get_positions.json")
+	expectedResponse := new(common.Response)
 
 	t.Run("parse struct", func(t *testing.T) {
 		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
@@ -262,34 +229,25 @@ func TestPortfolio(t *testing.T) {
 		}
 	})
 	t.Run("normal api response", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = rawFileBytes
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = expectedResponse
 		client.ReturnError = nil
 
-		_, err := GetPortfolio(client)
+		_, err := GetPositions(client)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 	})
 	t.Run("err api response", func(t *testing.T) {
 		errMessage := "error placing order"
-		lemonErr := LemonError{Message: errMessage}
+		lemonErr := common.LemonError{Message: errMessage}
 
-		client := GetMockedClient(t)
-		client.ReturnData = nil
+		client := helpers.GetMockedClient(t)
+		client.ReturnResponse = nil
 		client.ReturnError = lemonErr
-		_, err := GetPortfolio(client)
+		_, err := GetPositions(client)
 		if err.Error() != errMessage {
 			t.Errorf("Expected %s as error- message, got: %s", errMessage, err.Error())
-		}
-	})
-	t.Run("fail to decode struct", func(t *testing.T) {
-		client := GetMockedClient(t)
-		client.ReturnData = []byte("bad")
-		client.ReturnError = nil
-		_, err := GetPortfolio(client)
-		if err == nil {
-			t.Errorf("expected error, got, nil")
 		}
 	})
 }
@@ -298,7 +256,7 @@ func TestPortfolio(t *testing.T) {
 Integration tests below
 */
 func TestAccountIntegration(t *testing.T) {
-	client := GetClient(t, PAPER)
+	client := NewClient(helpers.APIKey(t), PAPER)
 	_, err := GetAccount(client)
 	if err != nil {
 		t.Errorf("Failure to get account %v", err)
@@ -308,7 +266,7 @@ func TestAccountIntegration(t *testing.T) {
 func TestOrderIntegration(t *testing.T) {
 	ISIN := "DE000CBK1001"
 	var orderID string
-	client := GetClient(t, PAPER)
+	client := NewClient(helpers.APIKey(t), PAPER)
 	t.Run("Place Order", func(t *testing.T) {
 		expiresAt := time.Now().AddDate(0, 0, 14)
 
@@ -317,7 +275,7 @@ func TestOrderIntegration(t *testing.T) {
 		if err != nil {
 			t.Errorf(err.Error())
 		}
-		orderID = placed.Results.ID
+		orderID = placed.ID
 	})
 	t.Run("Get Orders", func(t *testing.T) {
 		orders, err := GetOrders(client, nil)
@@ -325,7 +283,7 @@ func TestOrderIntegration(t *testing.T) {
 			t.Errorf(err.Error())
 		}
 		var found bool
-		for _, order := range orders.Results {
+		for order := range orders {
 			if order.ID == orderID {
 				found = true
 				break

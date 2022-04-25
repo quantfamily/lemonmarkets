@@ -12,8 +12,8 @@
         "estimated_price": 2900000
       }
     ],
-    "previous": "https://paper-trading.lemon.markets/v1/portfolio/?limit=10&page=1", 
-    "next": "https://paper-trading.lemon.markets/v1/portfolio/?limit=10&page=3", 
+    "previous": null, 
+    "next": null, 
     "total": 33, 
     "page": 2, 
     "pages": 4

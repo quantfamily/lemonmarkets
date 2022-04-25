@@ -1,5 +1,14 @@
 package common
 
+import (
+	"testing"
+)
+
+func TestClient(t *testing.T) {
+	t.Run("Do", func(t *testing.T) {
+	})
+}
+
 /*
 func TestClient(t *testing.T) {
 	t.Run("Do, get LemonError", func(t *testing.T) {

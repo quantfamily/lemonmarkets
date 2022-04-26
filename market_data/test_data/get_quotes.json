@@ -12,8 +12,8 @@
         "mic": "XMUN"
       }
     ],
-    "previous": "https://data.lemon.markets/v1/quotes/?isin=US88160R1014&from=2021-11-01&limit=10&page=1", 
-    "next": "https://data.lemon.markets/v1/quotes/?isin=US88160R1014&from=2021-11-01&limit=10&page=3", 
+    "previous": null, 
+    "next": null, 
     "total": 999, 
     "page": 2, 
     "pages": 10

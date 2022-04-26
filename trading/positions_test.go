@@ -28,7 +28,6 @@ func TestPositions(t *testing.T) {
 		client.ReturnError = nil
 
 		pChan, err := GetPositions(client)
-		client.ReturnResponse = nil
 		if err != nil {
 			t.Errorf(err.Error())
 		}

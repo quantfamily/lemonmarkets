@@ -44,7 +44,7 @@ func GetOHLCPerMinute(client common.Client, query *GetOHLCQuery) (<-chan OHLC, e
 		return nil, err
 	}
 	var ohlc []OHLC
-	err = json.Unmarshal(response.Results, ohlc)
+	err = json.Unmarshal(response.Results, &ohlc)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func GetOHLCPerHour(client common.Client, query *GetOHLCQuery) (<-chan OHLC, err
 		return nil, err
 	}
 	var ohlc []OHLC
-	err = json.Unmarshal(response.Results, ohlc)
+	err = json.Unmarshal(response.Results, &ohlc)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func GetOHLCPerDay(client common.Client, query *GetOHLCQuery) (<-chan OHLC, erro
 		return nil, err
 	}
 	var ohlc []OHLC
-	err = json.Unmarshal(response.Results, ohlc)
+	err = json.Unmarshal(response.Results, &ohlc)
 	if err != nil {
 		return nil, err
 	}

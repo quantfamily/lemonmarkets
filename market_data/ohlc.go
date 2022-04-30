@@ -2,9 +2,10 @@ package market_data
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
-	"github.com/quantfamily/lemonmarkets/common"
+	"github.com/quantfamily/lemonmarkets/client"
 )
 
 /*
@@ -38,73 +39,56 @@ type OHLC struct {
 /*
 GetOHLCPerMinute returns a response containing a list of OHLC per minute
 */
-func GetOHLCPerMinute(client common.Client, query *GetOHLCQuery) (<-chan OHLC, error) {
-	response, err := client.Do("GET", "ohlc/m1", query, nil)
-	if err != nil {
-		return nil, err
-	}
-	var ohlc []OHLC
-	err = json.Unmarshal(response.Results, &ohlc)
-	if err != nil {
-		return nil, err
-	}
-	ch := make(chan OHLC)
-	go returnOHLC(client, response, ch)
-	return ch, err
+func GetOHLCPerMinute(client *client.Client, query *GetOHLCQuery) <-chan Item[OHLC, error] {
+	ch := make(chan Item[OHLC, error])
+	go returnOHLC(client, "m1", query, ch)
+	return ch
 }
 
 /*
 GetOHLCPerHour returns a response containing a list of OHLC per hour
 */
-func GetOHLCPerHour(client common.Client, query *GetOHLCQuery) (<-chan OHLC, error) {
-	response, err := client.Do("GET", "ohlc/h1", query, nil)
-	if err != nil {
-		return nil, err
-	}
-	var ohlc []OHLC
-	err = json.Unmarshal(response.Results, &ohlc)
-	if err != nil {
-		return nil, err
-	}
-	ch := make(chan OHLC)
-	go returnOHLC(client, response, ch)
-	return ch, err
+func GetOHLCPerHour(client *client.Client, query *GetOHLCQuery) <-chan Item[OHLC, error] {
+	ch := make(chan Item[OHLC, error])
+	go returnOHLC(client, "h1", query, ch)
+	return ch
 }
 
 /*
 GetOHLCPerDay returns a response containing a list of OHLC per day
 */
-func GetOHLCPerDay(client common.Client, query *GetOHLCQuery) (<-chan OHLC, error) {
-	response, err := client.Do("GET", "ohlc/d1", query, nil)
-	if err != nil {
-		return nil, err
-	}
-	var ohlc []OHLC
-	err = json.Unmarshal(response.Results, &ohlc)
-	if err != nil {
-		return nil, err
-	}
-	ch := make(chan OHLC)
-	go returnOHLC(client, response, ch)
-	return ch, err
+func GetOHLCPerDay(client *client.Client, query *GetOHLCQuery) <-chan Item[OHLC, error] {
+	ch := make(chan Item[OHLC, error])
+	go returnOHLC(client, "d1", query, ch)
+	return ch
 }
 
-func returnOHLC(client common.Client, response *common.Response, outchan chan<- OHLC) {
-	defer close(outchan)
-	var ohlcs []OHLC
+func returnOHLC(client *client.Client, interval string, query *GetOHLCQuery, ch chan<- Item[OHLC, error]) {
+	defer close(ch)
+	response, err := client.Do("GET", fmt.Sprintf("ohlc/%s", interval), query, nil)
+	if err != nil {
+		ohlc := Item[OHLC, error]{}
+		ohlc.Error = err
+		ch <- ohlc
+		return
+	}
 	for {
-		err := json.Unmarshal(response.Results, &ohlcs)
-		if err != nil {
+		var ohlcs []OHLC
+		ohlc := Item[OHLC, error]{}
+		ohlc.Error = json.Unmarshal(response.Results, &ohlcs)
+		if ohlc.Error != nil {
+			ch <- ohlc
 			return
 		}
 		for _, ohlc := range ohlcs {
-			outchan <- ohlc
+			ch <- Item[OHLC, error]{ohlc, nil}
 		}
 		if response.Next == "" {
 			return
 		}
-		response, err = client.Do("GET", response.Next, nil, nil)
-		if err != nil {
+		response, ohlc.Error = client.Do("GET", response.Next, nil, nil)
+		if ohlc.Error != nil {
+			ch <- ohlc
 			return
 		}
 	}

@@ -3,7 +3,7 @@ package market_data
 import (
 	"encoding/json"
 
-	"github.com/quantfamily/lemonmarkets/common"
+	"github.com/quantfamily/lemonmarkets/client"
 )
 
 /*
@@ -37,37 +37,38 @@ type Instrument struct {
 GetInstruments calls backend with a optional query to filter data
 Response will be list of one or more instruments that we received from LemonMarkets
 */
-func GetInstruments(client common.Client, query *GetInstrumentsQuery) (<-chan Instrument, error) {
-	response, err := client.Do("GET", "instruments", nil, nil)
-	if err != nil {
-		return nil, err
-	}
-	var instruments []Instrument
-	err = json.Unmarshal(response.Results, &instruments)
-	if err != nil {
-		return nil, err
-	}
-	ch := make(chan Instrument)
-	go returnInstruments(client, response, ch)
-	return ch, nil
+func GetInstruments(client *client.Client, query *GetInstrumentsQuery) <-chan Item[Instrument, error] {
+	ch := make(chan Item[Instrument, error])
+	go returnInstruments(client, query, ch)
+	return ch
 }
 
-func returnInstruments(client common.Client, response *common.Response, outchan chan<- Instrument) {
-	defer close(outchan)
-	var instruments []Instrument
+func returnInstruments(client *client.Client, query *GetInstrumentsQuery, ch chan<- Item[Instrument, error]) {
+	defer close(ch)
+	response, err := client.Do("GET", "instruments", query, nil)
+	if err != nil {
+		instrument := Item[Instrument, error]{}
+		instrument.Error = err
+		ch <- instrument
+		return
+	}
 	for {
-		err := json.Unmarshal(response.Results, &instruments)
-		if err != nil {
+		var instruments []Instrument
+		instrument := Item[Instrument, error]{}
+		instrument.Error = json.Unmarshal(response.Results, &instruments)
+		if instrument.Error != nil {
+			ch <- instrument
 			return
 		}
 		for _, instrument := range instruments {
-			outchan <- instrument
+			ch <- Item[Instrument, error]{instrument, nil}
 		}
 		if response.Next == "" {
 			return
 		}
-		response, err = client.Do("GET", response.Next, nil, nil)
-		if err != nil {
+		response, instrument.Error = client.Do("GET", response.Next, nil, nil)
+		if instrument.Error != nil {
+			ch <- instrument
 			return
 		}
 	}

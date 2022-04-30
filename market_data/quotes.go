@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/quantfamily/lemonmarkets/common"
+	"github.com/quantfamily/lemonmarkets/client"
 )
 
 /*
@@ -37,37 +37,38 @@ type Quote struct {
 /*
 GetQuotes takes a possible query parameter and returns Response containing one or more quotes from LemonMarkets
 */
-func GetQuotes(client common.Client, q *GetQuotesQuery) (<-chan Quote, error) {
-	response, err := client.Do("GET", "quotes", q, nil)
-	if err != nil {
-		return nil, err
-	}
-	var quotes []Quote
-	err = json.Unmarshal(response.Results, &quotes)
-	if err != nil {
-		return nil, err
-	}
-	ch := make(chan Quote)
-	go returnQuotes(client, response, ch)
-	return ch, nil
+func GetQuotes(client *client.Client, query *GetQuotesQuery) <-chan Item[Quote, error] {
+	ch := make(chan Item[Quote, error])
+	go returnQuotes(client, query, ch)
+	return ch
 }
 
-func returnQuotes(client common.Client, response *common.Response, outchan chan<- Quote) {
-	defer close(outchan)
-	var quotes []Quote
+func returnQuotes(client *client.Client, query *GetQuotesQuery, ch chan<- Item[Quote, error]) {
+	defer close(ch)
+	response, err := client.Do("GET", "quotes", query, nil)
+	if err != nil {
+		quote := Item[Quote, error]{}
+		quote.Error = err
+		ch <- quote
+		return
+	}
 	for {
-		err := json.Unmarshal(response.Results, &quotes)
-		if err != nil {
+		var quotes []Quote
+		quote := Item[Quote, error]{}
+		quote.Error = json.Unmarshal(response.Results, &quotes)
+		if quote.Error != nil {
+			ch <- quote
 			return
 		}
 		for _, quote := range quotes {
-			outchan <- quote
+			ch <- Item[Quote, error]{quote, nil}
 		}
 		if response.Next == "" {
 			return
 		}
-		response, err = client.Do("GET", response.Next, nil, nil)
-		if err != nil {
+		response, quote.Error = client.Do("GET", response.Next, nil, nil)
+		if quote.Error != nil {
+			ch <- quote
 			return
 		}
 	}

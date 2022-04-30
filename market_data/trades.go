@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/quantfamily/lemonmarkets/common"
+	"github.com/quantfamily/lemonmarkets/client"
 )
 
 /*
@@ -35,37 +35,38 @@ type Trade struct {
 /*
 GetTrades take a possible query parameter and returns a object contaning one or mote trades
 */
-func GetTrades(client common.Client, query *TradesQuery) (<-chan Trade, error) {
-	response, err := client.Do("GET", "trades", query, nil)
-	if err != nil {
-		return nil, err
-	}
-	var trades []Trade
-	err = json.Unmarshal(response.Results, &trades)
-	if err != nil {
-		return nil, err
-	}
-	ch := make(chan Trade)
-	go returnTrades(client, response, ch)
-	return ch, err
+func GetTrades(client *client.Client, query *TradesQuery) <-chan Item[Trade, error] {
+	ch := make(chan Item[Trade, error])
+	go returnTrades(client, query, ch)
+	return ch
 }
 
-func returnTrades(client common.Client, response *common.Response, outchan chan<- Trade) {
-	defer close(outchan)
-	var trades []Trade
+func returnTrades(client *client.Client, query *TradesQuery, ch chan<- Item[Trade, error]) {
+	defer close(ch)
+	response, err := client.Do("GET", "trades", query, nil)
+	if err != nil {
+		trade := Item[Trade, error]{}
+		trade.Error = err
+		ch <- trade
+		return
+	}
 	for {
-		err := json.Unmarshal(response.Results, &trades)
-		if err != nil {
+		var trades []Trade
+		trade := Item[Trade, error]{}
+		trade.Error = json.Unmarshal(response.Results, &trades)
+		if trade.Error != nil {
+			ch <- trade
 			return
 		}
 		for _, trade := range trades {
-			outchan <- trade
+			ch <- Item[Trade, error]{trade, nil}
 		}
 		if response.Next == "" {
 			return
 		}
-		response, err = client.Do("GET", response.Next, nil, nil)
-		if err != nil {
+		response, trade.Error = client.Do("GET", response.Next, nil, nil)
+		if trade.Error != nil {
+			ch <- trade
 			return
 		}
 	}

@@ -3,7 +3,7 @@ package trading
 import (
 	"encoding/json"
 
-	"github.com/quantfamily/lemonmarkets/common"
+	"github.com/quantfamily/lemonmarkets/client"
 )
 
 /*
@@ -21,37 +21,38 @@ type Position struct {
 /*
 GetPositions returns current positions in LemonMarkets
 */
-func GetPositions(client common.Client) (<-chan Position, error) {
-	response, err := client.Do("GET", "portfolio", nil, nil)
-	if err != nil {
-		return nil, err
-	}
-	var positions []Position
-	err = json.Unmarshal(response.Results, &positions)
-	if err != nil {
-		return nil, err
-	}
-	ch := make(chan Position)
-	go returnPositions(client, response, ch)
-	return ch, nil
+func GetPositions(client *client.Client) <-chan Item[Position, error] {
+	ch := make(chan Item[Position, error])
+	go returnPositions(client, ch)
+	return ch
 }
 
-func returnPositions(client common.Client, response *common.Response, outchan chan<- Position) {
-	defer close(outchan)
-	var positions []Position
+func returnPositions(client *client.Client, ch chan<- Item[Position, error]) {
+	defer close(ch)
+	response, err := client.Do("GET", "positions", nil, nil)
+	if err != nil {
+		order := Item[Position, error]{}
+		order.Error = err
+		ch <- order
+		return
+	}
 	for {
-		err := json.Unmarshal(response.Results, &positions)
-		if err != nil {
+		var positions []Position
+		order := Item[Position, error]{}
+		order.Error = json.Unmarshal(response.Results, &positions)
+		if order.Error != nil {
+			ch <- order
 			return
 		}
 		for _, position := range positions {
-			outchan <- position
+			ch <- Item[Position, error]{position, nil}
 		}
 		if response.Next == "" {
 			return
 		}
-		response, err = client.Do("GET", response.Next, nil, nil)
-		if err != nil {
+		response, order.Error = client.Do("GET", response.Next, nil, nil)
+		if order.Error != nil {
+			ch <- order
 			return
 		}
 	}

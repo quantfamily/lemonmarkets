@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/quantfamily/lemonmarkets/common"
+	"github.com/quantfamily/lemonmarkets/client"
 )
 
 /*
@@ -42,12 +42,13 @@ type Account struct {
 /*
 GetAccount returns account information from the used, based on the API Key
 */
-func GetAccount(client common.Client) (*Account, error) {
+func GetAccount(client *client.Client) *Item[Account, error] {
+	account := &Item[Account, error]{}
 	responseData, err := client.Do("GET", "account", nil, nil)
 	if err != nil {
-		return nil, err
+		account.Error = err
+		return account
 	}
-	var account Account
-	err = json.Unmarshal(responseData.Results, &account)
-	return &account, err
+	account.Error = json.Unmarshal(responseData.Results, &account.Data)
+	return account
 }

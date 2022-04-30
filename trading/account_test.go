@@ -2,56 +2,55 @@ package trading
 
 import (
 	"encoding/json"
-	"reflect"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
+	"time"
 
-	"github.com/quantfamily/lemonmarkets/common"
-	"github.com/quantfamily/lemonmarkets/common/helpers"
+	"github.com/quantfamily/lemonmarkets/client"
+	"github.com/quantfamily/lemonmarkets/client/helpers"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAccount(t *testing.T) {
 	rawFileBytes := helpers.ParseFile(t, "get_account.json")
-	expectedResponse := new(common.Response)
-	expectedAccount := new(Account)
-	t.Run("parse struct", func(t *testing.T) {
-		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
-			t.Errorf("error parsing struct: %v", err)
-		}
-		if err := json.Unmarshal(expectedResponse.Results, expectedAccount); err != nil {
-			t.Errorf("error parsing struct: %v", err)
-		}
 
-	})
-	t.Run("normal api response", func(t *testing.T) {
-		client := helpers.GetMockedClient(t)
-		client.ReturnResponse = expectedResponse
-		client.ReturnError = nil
-		clientResponse, err := GetAccount(client)
-		if err != nil {
-			t.Errorf(err.Error())
+	t.Run("fail to get response", func(t *testing.T) {
+		expectedErr := client.LemonError{
+			Time:    time.Time{},
+			Mode:    "paper",
+			Status:  "error",
+			Code:    "order_total_price_limit_exceeded",
+			Message: "cannot place/activate buy order if estimated total price is greater than 25k Euro",
 		}
-		if !reflect.DeepEqual(clientResponse, expectedAccount) {
-			t.Errorf("Not equal")
-		}
+		errRsp, _ := json.Marshal(&expectedErr)
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, string(errRsp), 400)
+		}))
+		defer server.Close()
+		client := client.Client{BaseURL: server.URL}
+		account := GetAccount(&client)
+		assert.NotNil(t, account.Error)
+		assert.Equal(t, &expectedErr, account.Error)
 	})
-	t.Run("err api response", func(t *testing.T) {
-		errMessage := "error getting account"
-		lemonErr := common.LemonError{Message: errMessage}
-
-		client := helpers.GetMockedClient(t)
-		client.ReturnResponse = nil
-		client.ReturnError = lemonErr
-		_, err := GetAccount(client)
-		if err.Error() != errMessage {
-			t.Errorf("Expected %s as error- message, got: %s", errMessage, err.Error())
-		}
+	t.Run("Fail to decode results", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprint(w, `really odd response`)
+		}))
+		defer server.Close()
+		client := client.Client{BaseURL: server.URL}
+		account := GetAccount(&client)
+		assert.NotNil(t, account.Error)
+		assert.ObjectsAreEqual(&json.SyntaxError{}, account.Error)
 	})
-}
-
-func TestAccountIntegration(t *testing.T) {
-	client := NewClient(helpers.APIKey(t), PAPER)
-	_, err := GetAccount(client)
-	if err != nil {
-		t.Errorf("Failure to get account %v", err)
-	}
+	t.Run("Successful test", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprint(w, string(rawFileBytes))
+		}))
+		defer server.Close()
+		client := client.Client{BaseURL: server.URL}
+		account := GetAccount(&client)
+		assert.Nil(t, account.Error)
+	})
 }

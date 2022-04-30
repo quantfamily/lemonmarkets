@@ -1,4 +1,4 @@
-package common
+package client
 
 import (
 	"bytes"
@@ -11,16 +11,9 @@ import (
 )
 
 /*
-Client is interface to do operations towards backend service
-*/
-type Client interface {
-	Do(method string, endpoint string, query interface{}, data []byte) (*Response, error)
-}
-
-/*
 LemonClient holding the Base Path of http address as Environment as well as corresponding API Key
 */
-type LemonClient struct {
+type Client struct {
 	BaseURL string
 	APIKey  string
 }
@@ -32,7 +25,7 @@ Endpoint as where the call should go (OHLC, Account etc)
 Q as struct holding query- parameters that should be include, eg for filtering
 Data as request body that should be posted
 */
-func (c *LemonClient) Do(method string, endpoint string, q interface{}, data []byte) (*Response, error) {
+func (c *Client) Do(method string, endpoint string, q interface{}, data []byte) (*Response, error) {
 	url := fmt.Sprintf("%s/%s", c.BaseURL, endpoint)
 	if q != nil {
 		queryString, err := query.Values(q)
@@ -60,9 +53,8 @@ func (c *LemonClient) Do(method string, endpoint string, q interface{}, data []b
 	}
 
 	defer resp.Body.Close()
-	var response *Response
+	response := new(Response)
 	data, err = io.ReadAll(resp.Body)
 	err = json.Unmarshal(data, response)
-
 	return response, err
 }

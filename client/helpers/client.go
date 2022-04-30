@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/quantfamily/lemonmarkets/common"
+	"github.com/quantfamily/lemonmarkets/client"
 )
 
 type MockedClient struct {
@@ -15,11 +15,11 @@ type MockedClient struct {
 	CalledEndpoint string
 	CalledQuery    interface{}
 	CalledData     []byte
-	ReturnResponse *common.Response
+	ReturnResponse *client.Response
 	ReturnError    error
 }
 
-func (mc *MockedClient) Do(method string, endpoint string, query interface{}, data []byte) (*common.Response, error) {
+func (mc *MockedClient) Do(method string, endpoint string, query interface{}, data []byte) (*client.Response, error) {
 	mc.CalledMethod = method
 	mc.CalledEndpoint = endpoint
 	mc.CalledQuery = query

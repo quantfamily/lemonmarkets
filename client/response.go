@@ -1,9 +1,7 @@
-package common
+package client
 
 import (
 	"encoding/json"
-	"fmt"
-	"strings"
 	"time"
 )
 
@@ -20,22 +18,4 @@ type Response struct {
 	Page     int             `json:"page"`
 	Pages    int             `json:"pages"`
 	Results  json.RawMessage `json:"results"`
-}
-
-/*
-Next will call the backend for the next list of items of a particular collection and Update its structure
-*/
-func (lr *Response) QueryNext(client Client, s interface{}) error {
-	if len(lr.Next) == 0 {
-		return fmt.Errorf("end of list")
-	}
-	splitted := strings.Split(lr.Next, "/v1/")
-	if len(splitted) != 2 {
-		return fmt.Errorf("url is not correct")
-	}
-	response, err := client.Do("GET", splitted[1], nil, nil)
-	if err != nil {
-		return err
-	}
-	return json.Unmarshal(response.Results, s)
 }

@@ -2,53 +2,58 @@ package trading
 
 import (
 	"encoding/json"
-	"reflect"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
+	"time"
 
-	"github.com/quantfamily/lemonmarkets/common"
-	"github.com/quantfamily/lemonmarkets/common/helpers"
+	"github.com/quantfamily/lemonmarkets/client"
+	"github.com/quantfamily/lemonmarkets/client/helpers"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestPositions(t *testing.T) {
+func TestGetPositions(t *testing.T) {
 	rawFileBytes := helpers.ParseFile(t, "get_positions.json")
-	expectedResponse := new(common.Response)
-	expectedPositions := new([]Position)
 
-	t.Run("parse struct", func(t *testing.T) {
-		if err := json.Unmarshal(rawFileBytes, expectedResponse); err != nil {
-			t.Errorf("error parsing struct: %v", err)
+	t.Run("fail to get response", func(t *testing.T) {
+		expectedErr := client.LemonError{
+			Time:    time.Time{},
+			Mode:    "paper",
+			Status:  "error",
+			Code:    "order_total_price_limit_exceeded",
+			Message: "cannot place/activate buy order if estimated total price is greater than 25k Euro",
 		}
-		if err := json.Unmarshal(expectedResponse.Results, expectedPositions); err != nil {
-			t.Errorf("error parsing struct: %v", err)
-		}
+		errRsp, _ := json.Marshal(&expectedErr)
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, string(errRsp), 400)
+		}))
+		defer server.Close()
+		client := client.Client{BaseURL: server.URL}
+		positionCh := GetPositions(&client)
+		position := <-positionCh
+		assert.NotNil(t, position.Error)
+		assert.Equal(t, &expectedErr, position.Error)
 	})
-	t.Run("normal api response", func(t *testing.T) {
-		client := helpers.GetMockedClient(t)
-		client.ReturnResponse = expectedResponse
-		client.ReturnError = nil
-
-		pChan, err := GetPositions(client)
-		if err != nil {
-			t.Errorf(err.Error())
-		}
-		positions := make([]Position, 0)
-		for p := range pChan {
-			positions = append(positions, p)
-		}
-		if !reflect.DeepEqual(&positions, expectedPositions) {
-			t.Errorf("Not equal")
-		}
+	t.Run("Fail to decode results", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprint(w, `really odd response`)
+		}))
+		defer server.Close()
+		client := client.Client{BaseURL: server.URL}
+		positionCh := GetPositions(&client)
+		position := <-positionCh
+		assert.NotNil(t, position.Error)
+		assert.ObjectsAreEqual(&json.SyntaxError{}, position.Error)
 	})
-	t.Run("err api response", func(t *testing.T) {
-		errMessage := "error placing order"
-		lemonErr := common.LemonError{Message: errMessage}
-
-		client := helpers.GetMockedClient(t)
-		client.ReturnResponse = nil
-		client.ReturnError = lemonErr
-		_, err := GetPositions(client)
-		if err.Error() != errMessage {
-			t.Errorf("Expected %s as error- message, got: %s", errMessage, err.Error())
-		}
+	t.Run("Successful test", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprint(w, string(rawFileBytes))
+		}))
+		defer server.Close()
+		client := client.Client{BaseURL: server.URL}
+		positionCh := GetPositions(&client)
+		position := <-positionCh
+		assert.Nil(t, position.Error)
 	})
 }

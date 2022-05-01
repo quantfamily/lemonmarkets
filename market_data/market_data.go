@@ -3,7 +3,7 @@ package market_data
 import "github.com/quantfamily/lemonmarkets/client"
 
 type DataTypes interface {
-	Instrument | OHLC | Quote | Trade
+	Instrument | OHLC | Quote | Trade | Venue
 }
 
 type Item[data DataTypes, err error] struct {

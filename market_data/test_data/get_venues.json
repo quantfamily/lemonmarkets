@@ -1,0 +1,27 @@
+{
+    "time": "2022-02-14T20:44:03.759+00:00",
+    "results":
+    [
+      {
+        "name": "Börse München - Gettex",
+        "title": "Gettex",
+        "mic": "XMUN",
+        "is_open": true,
+        "opening_hours": {
+          "start": "08:00",
+          "end": "22:00",
+          "timezone": "Europe/Berlin"
+        },
+        "opening_days": [
+          "2021-12-06",
+          "2021-12-07",
+          "2021-12-08"
+        ]
+      }
+    ],
+    "previous": null,
+    "next": null,
+    "total": 3,
+    "page": 2,
+    "pages": 3
+  }

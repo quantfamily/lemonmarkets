@@ -73,3 +73,52 @@ func returnInstruments(client *client.Client, query *GetInstrumentsQuery, ch cha
 		}
 	}
 }
+
+/*
+Venue of where the tradeable instrument is located
+*/
+type Venue struct {
+	Name     string `json:"name"`
+	Title    string `json:"title"`
+	Mic      string `json:"mic"`
+	IsOpen   bool   `json:"is_open"`
+	Tradable bool   `json:"tradable"`
+	Currency string `json:"currency"`
+}
+
+func GetVenues(client *client.Client) <-chan Item[Venue, error] {
+	ch := make(chan Item[Venue, error])
+	go returnVenues(client, ch)
+	return ch
+}
+
+func returnVenues(client *client.Client, ch chan<- Item[Venue, error]) {
+	defer close(ch)
+	response, err := client.Do("GET", "venues", nil, nil)
+	if err != nil {
+		venue := Item[Venue, error]{}
+		venue.Error = err
+		ch <- venue
+		return
+	}
+	for {
+		var venues []Venue
+		venue := Item[Venue, error]{}
+		venue.Error = json.Unmarshal(response.Results, &venues)
+		if venue.Error != nil {
+			ch <- venue
+			return
+		}
+		for _, venue := range venues {
+			ch <- Item[Venue, error]{venue, nil}
+		}
+		if response.Next == "" {
+			return
+		}
+		response, venue.Error = client.Do("GET", response.Next, nil, nil)
+		if venue.Error != nil {
+			ch <- venue
+			return
+		}
+	}
+}

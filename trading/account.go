@@ -111,7 +111,7 @@ type BankStatement struct {
 	ID        string    `json:"id,omitempty"`
 	AcountID  string    `json:"account_id,omitempty"`
 	Type      string    `json:"type,omitempty"`
-	Date      time.Time `json:"date,omitempty"`
+	Date      string    `json:"date,omitempty"` // TODO: Get this formatted to time.Time (YYYY-MM-DD)
 	Amount    int       `json:"amount,omitempty"`
 	ISIN      string    `json:"isin,omitempty"`
 	ISINTitle string    `json:"isin_title,omitempty"`

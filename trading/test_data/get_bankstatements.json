@@ -1,0 +1,22 @@
+{
+    "time": "2021-11-22T15:41:04.028+00:00",
+    "status": "ok",
+    "mode":"paper",
+    "results": [
+      {
+        "id": "bst_pyQKKTTSS0Q2drg2J7yRhTwBkMPd1JgZzZ",
+        "account_id": "acc_pyNQNll99hQbXMCS0dRzHyKQCRKYHpy3zg",
+        "type": "order_buy",
+        "date": "2021-12-16",
+        "amount": 100000,
+        "isin": "US19260Q1076",
+        "isin_title": "COINBASE GLOBAL INC.",
+        "created_at": "2021-12-17T01:37:03.362+00:00"
+      }
+    ],
+    "previous": null,
+    "next": null,
+    "total": 80,
+    "page": 2,
+    "pages": 4
+  }

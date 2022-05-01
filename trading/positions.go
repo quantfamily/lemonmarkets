@@ -67,7 +67,7 @@ type Statement struct {
 	Quantity   int       `json:"quantity,omitempty"`
 	ISIN       string    `json:"isin,omitempty"`
 	ISINTitle  string    `json:"isin_title,omitempty"`
-	Date       time.Time `json:"date,omitempty"`
+	Date       string    `json:"date,omitempty"` // TODO convert to time.Time (YYYY-MM-DD)
 	CreatedAt  time.Time `json:"created_at,omitempty"`
 }
 

@@ -3,7 +3,7 @@ package trading
 import "github.com/quantfamily/lemonmarkets/client"
 
 type DataTypes interface {
-	Order | Position | Account
+	Order | Position | Account | Withdrawal | BankStatement | Document | Statement
 }
 
 type Item[data DataTypes, err error] struct {

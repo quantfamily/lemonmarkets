@@ -1,15 +1,13 @@
 package client
 
 import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
-func TestClient(t *testing.T) {
-	t.Run("Do", func(t *testing.T) {
-	})
-}
-
-/*
 func TestClient(t *testing.T) {
 	t.Run("Do, get LemonError", func(t *testing.T) {
 		errMessage := "generic error message"
@@ -21,7 +19,7 @@ func TestClient(t *testing.T) {
 		}))
 		defer server.Close()
 
-		client := LemonClient{Environment: Environment(server.URL)}
+		client := Client{BaseURL: server.URL}
 		_, err := client.Do("demo", "demo", nil, nil)
 		if err == nil {
 			t.Errorf("Expected error, got nil")
@@ -37,7 +35,7 @@ func TestClient(t *testing.T) {
 		}))
 		defer server.Close()
 
-		client := LemonClient{Environment: Environment(server.URL)}
+		client := Client{BaseURL: server.URL}
 		_, err := client.Do("demo", "demo", nil, nil)
 		if err == nil {
 			t.Errorf("Expected error, got nil")
@@ -45,39 +43,14 @@ func TestClient(t *testing.T) {
 	})
 	t.Run("Do, normal request", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-			lemonError := Reply{Status: "very ok"}
-			response, _ := json.Marshal(lemonError)
-			w.Write(response)
+			fmt.Fprint(w, `{"status": "ok"}`)
 		}))
 		defer server.Close()
 
-		client := LemonClient{Environment: Environment(server.URL)}
+		client := Client{BaseURL: server.URL}
 		_, err := client.Do("demo", "demo", nil, nil)
 		if err != nil {
 			t.Errorf("Expected nil, got error: %v", err)
 		}
 	})
-	t.Run("Do, with querystring", func(t *testing.T) {
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-			lemonError := Reply{Status: "very ok"}
-			response, _ := json.Marshal(lemonError)
-			expectedQuery := "isin=isin1&isin=isin2&mic=my_mic"
-			if r.URL.RawQuery != expectedQuery {
-				t.Errorf("Expected query %s, got %s", expectedQuery, r.URL.RawQuery)
-			}
-			w.Write(response)
-		}))
-		defer server.Close()
-
-		client := LemonClient{Environment: Environment(server.URL)}
-		isins := []string{"isin1", "isin2"}
-		query := GetInstrumentsQuery{MIC: "my_mic", ISIN: isins}
-		_, err := client.Do("demo", "demo", &query, nil)
-		if err != nil {
-			t.Errorf("Expected nil, got error: %v", err)
-		}
-	})
 }
-*/

@@ -11,12 +11,12 @@ import (
 PortfolioPosition is information about Positions inside the Portfolio
 */
 type Position struct {
-	ISIN                string  `json:"isin"`
-	ISINTitle           string  `json:"isin_title"`
-	Quantity            int     `json:"quantity"`
-	BuyPriceAverage     float64 `json:"buy_price_avg"`
-	EstimatedPriceTotal float64 `json:"estimated_price_total"`
-	EstimatedPrice      float64 `json:"estimated_price"`
+	ISIN                string `json:"isin"`
+	ISINTitle           string `json:"isin_title"`
+	Quantity            int    `json:"quantity"`
+	BuyPriceAverage     int    `json:"buy_price_avg"`
+	EstimatedPriceTotal int    `json:"estimated_price_total"`
+	EstimatedPrice      int    `json:"estimated_price"`
 }
 
 /*

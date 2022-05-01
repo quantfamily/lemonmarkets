@@ -32,7 +32,7 @@ type Account struct {
 	Balance           float32   `json:"balance"`
 	CashToInvest      float32   `json:"cash_to_invest"`
 	CashToWithdraw    float32   `json:"cash_to_withdraw"`
-	TradingPlan       string    `json:"basic"`
+	TradingPlan       string    `json:"trading_plan"`
 	DataPlan          string    `json:"data_plan"`
 	TaxAllowance      string    `json:"tax_allowance"`
 	TaxAllowanceStart time.Time `json:"tax_allowance_start"`

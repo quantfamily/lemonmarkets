@@ -55,6 +55,7 @@ func TestGetPositions(t *testing.T) {
 		positionCh := GetPositions(&client)
 		position := <-positionCh
 		assert.Nil(t, position.Error)
+		assert.Equal(t, 5800000, position.Data.EstimatedPriceTotal)
 	})
 }
 
@@ -100,5 +101,6 @@ func TestGetStatements(t *testing.T) {
 		statementCh := GetStatements(&client)
 		statement := <-statementCh
 		assert.Nil(t, statement.Error)
+		assert.Equal(t, "US19260Q1076", statement.Data.ISIN)
 	})
 }

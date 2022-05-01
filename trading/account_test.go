@@ -52,6 +52,10 @@ func TestAccount(t *testing.T) {
 		client := client.Client{BaseURL: server.URL}
 		account := GetAccount(&client)
 		assert.Nil(t, account.Error)
+		assert.Equal(t, "basic", account.Data.TradingPlan)
+		assert.Equal(t, "K2057263187", account.Data.DepositID)
+		assert.Equal(t, "m_burry@tradingapi.com", account.Data.EMail)
+
 	})
 }
 
@@ -127,6 +131,7 @@ func TestGetWithdrawals(t *testing.T) {
 		withdrawalCh := GetWithdrawals(&client)
 		withdrawal := <-withdrawalCh
 		assert.Nil(t, withdrawal.Error)
+		assert.Equal(t, 1000000, withdrawal.Data.Amount)
 	})
 }
 
@@ -172,6 +177,7 @@ func TestGetBankStatements(t *testing.T) {
 		bankstatementCh := GetBankStatements(&client)
 		bankstatement := <-bankstatementCh
 		assert.Nil(t, bankstatement.Error)
+		assert.Equal(t, 100000, bankstatement.Data.Amount)
 	})
 }
 
@@ -217,5 +223,6 @@ func TestGetDocuments(t *testing.T) {
 		documentCh := GetDocuments(&client)
 		document := <-documentCh
 		assert.Nil(t, document.Error)
+		assert.Equal(t, "account_opening.pdf", document.Data.Name)
 	})
 }

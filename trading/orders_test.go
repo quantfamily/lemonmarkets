@@ -127,6 +127,7 @@ func TestGetOrders(t *testing.T) {
 		orderCh := GetOrders(&client, nil)
 		order := <-orderCh
 		assert.Nil(t, order.Error)
+		assert.Equal(t, 2965000, order.Data.ExecutedPrice)
 	})
 }
 
@@ -169,6 +170,7 @@ func TestGetOrder(t *testing.T) {
 		client := client.Client{BaseURL: server.URL}
 		order := GetOrder(&client, "22")
 		assert.Nil(t, order.Error)
+		assert.Equal(t, 2965000, order.Data.ExecutedPrice)
 	})
 }
 

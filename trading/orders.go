@@ -12,24 +12,32 @@ import (
 Order information for a instrument
 */
 type Order struct {
-	CreatedAt             time.Time              `json:"created_at,omitempty"`
 	ID                    string                 `json:"id,omitempty"`
-	Status                string                 `json:"status,omitempty"`
 	ISIN                  string                 `json:"isin,omitempty"`
+	ISINTitle             string                 `json:"isin_title,omitempty"`
 	ExpiresAt             time.Time              `json:"expires_at,omitempty"`
+	CreatedAt             time.Time              `json:"created_at,omitempty"`
 	Side                  string                 `json:"side,omitempty"`
 	Quantity              int                    `json:"quantity,omitempty"`
-	StopPrice             float64                `json:"stop_price,omitempty"`
-	LimitPrice            float64                `json:"limit_price,omitempty"`
+	StopPrice             int                    `json:"stop_price,omitempty"`
+	LimitPrice            int                    `json:"limit_price,omitempty"`
+	EstimatedPrice        int                    `json:"estimated_price,omitempty"`
+	EstimatedPriceTotal   int                    `json:"estimated_price_total,omitempty"`
 	Venue                 string                 `json:"venue,omitempty"`
-	EstimatedPrice        float64                `json:"estimated_price,omitempty"`
+	Status                string                 `json:"status,omitempty"`
+	Type                  string                 `json:"type,omitempty"`
+	ExecutedQuantity      int                    `json:"executed_quantity,omitempty"`
+	ExecutedPrice         int                    `json:"executed_price,omitempty"`
+	ExecutedPriceTotal    int                    `json:"executed_price_total,omitempty"`
+	ExecutedAt            time.Time              `json:"executed_at,omitempty"`
+	RejectedAt            time.Time              `json:"rejected_at,omitempty"`
 	Notes                 string                 `json:"notes,omitempty"`
-	Idempotency           string                 `json:"idempotency,omitempty"`
 	Charge                float64                `json:"charge,omitempty"`
 	ChargeableAt          time.Time              `json:"chargeable_at,omitempty"`
 	KeyCreationID         string                 `json:"key_creation_id,omitempty"`
 	KeyActivationID       string                 `json:"key_activation_id,omitempty"`
 	RegulatoryInformation *RegulatoryInformation `json:"regulatory_information,omitempty"`
+	Idempotency           string                 `json:"idempotency,omitempty"`
 }
 
 /*

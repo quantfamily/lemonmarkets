@@ -55,5 +55,6 @@ func TestGetQuotes(t *testing.T) {
 		quoteCh := GetQuotes(&client, nil)
 		quote := <-quoteCh
 		assert.Nil(t, quote.Error)
+		assert.Equal(t, 921.1, quote.Data.Ask)
 	})
 }

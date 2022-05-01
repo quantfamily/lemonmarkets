@@ -54,7 +54,9 @@ func TestGetOHLCs(t *testing.T) {
 		client := client.Client{BaseURL: server.URL}
 		ohlcCh := GetOHLCPerMinute(&client, nil)
 		ohlc := <-ohlcCh
+		ohlc = <-ohlcCh
 		assert.Nil(t, ohlc.Error)
+		assert.Equal(t, 609.5, ohlc.Data.Low)
 	})
 	t.Run("Successful test, h1", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +66,9 @@ func TestGetOHLCs(t *testing.T) {
 		client := client.Client{BaseURL: server.URL}
 		ohlcCh := GetOHLCPerHour(&client, nil)
 		ohlc := <-ohlcCh
+		ohlc = <-ohlcCh
 		assert.Nil(t, ohlc.Error)
+		assert.Equal(t, 609.5, ohlc.Data.Low)
 	})
 	t.Run("Successful test, d1", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -74,6 +78,8 @@ func TestGetOHLCs(t *testing.T) {
 		client := client.Client{BaseURL: server.URL}
 		ohlcCh := GetOHLCPerDay(&client, nil)
 		ohlc := <-ohlcCh
+		ohlc = <-ohlcCh
 		assert.Nil(t, ohlc.Error)
+		assert.Equal(t, 609.5, ohlc.Data.Low)
 	})
 }

@@ -55,5 +55,6 @@ func TestGetTrades(t *testing.T) {
 		tradeCh := GetTrades(&client, nil)
 		trade := <-tradeCh
 		assert.Nil(t, trade.Error)
+		assert.Equal(t, 2, trade.Data.Volume)
 	})
 }

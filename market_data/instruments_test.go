@@ -55,6 +55,7 @@ func TestGetInstruments(t *testing.T) {
 		instrumentCh := GetInstruments(&client, nil)
 		instrument := <-instrumentCh
 		assert.Nil(t, instrument.Error)
+		assert.Equal(t, "1QZ", instrument.Data.Symbol)
 	})
 }
 
@@ -75,10 +76,10 @@ func TestGetVenues(t *testing.T) {
 		}))
 		defer server.Close()
 		client := client.Client{BaseURL: server.URL}
-		instrumentCh := GetVenues(&client)
-		instrument := <-instrumentCh
-		assert.NotNil(t, instrument.Error)
-		assert.Equal(t, &expectedErr, instrument.Error)
+		venueCh := GetVenues(&client)
+		venue := <-venueCh
+		assert.NotNil(t, venue.Error)
+		assert.Equal(t, &expectedErr, venue.Error)
 	})
 	t.Run("Fail to decode results", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -86,10 +87,10 @@ func TestGetVenues(t *testing.T) {
 		}))
 		defer server.Close()
 		client := client.Client{BaseURL: server.URL}
-		instrumentCh := GetVenues(&client)
-		instrument := <-instrumentCh
-		assert.NotNil(t, instrument.Error)
-		assert.ObjectsAreEqual(&json.SyntaxError{}, instrument.Error)
+		venueCh := GetVenues(&client)
+		venue := <-venueCh
+		assert.NotNil(t, venue.Error)
+		assert.ObjectsAreEqual(&json.SyntaxError{}, venue.Error)
 	})
 	t.Run("Successful test", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -97,8 +98,9 @@ func TestGetVenues(t *testing.T) {
 		}))
 		defer server.Close()
 		client := client.Client{BaseURL: server.URL}
-		instrumentCh := GetVenues(&client)
-		instrument := <-instrumentCh
-		assert.Nil(t, instrument.Error)
+		venueCh := GetVenues(&client)
+		venue := <-venueCh
+		assert.Nil(t, venue.Error)
+		assert.Equal(t, true, venue.Data.IsOpen)
 	})
 }

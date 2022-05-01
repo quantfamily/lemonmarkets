@@ -28,8 +28,8 @@ type Quote struct {
 	ISIN      string    `json:"isin"`
 	BidVolume int       `json:"b_v"`
 	AskVolume int       `json:"a_v"`
-	Bid       float64   `json:"bid"`
-	Ask       float64   `json:"ask"`
+	Bid       float64   `json:"b"`
+	Ask       float64   `json:"a"`
 	Time      time.Time `json:"t"`
 	Mic       string    `json:"mic"`
 }

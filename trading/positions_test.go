@@ -29,8 +29,9 @@ func TestGetPositions(t *testing.T) {
 			http.Error(w, string(errRsp), 400)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		positionCh := GetPositions(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		positionCh := client.GetPositions()
 		position := <-positionCh
 		assert.NotNil(t, position.Error)
 		assert.Equal(t, &expectedErr, position.Error)
@@ -40,8 +41,9 @@ func TestGetPositions(t *testing.T) {
 			fmt.Fprint(w, `really odd response`)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		positionCh := GetPositions(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		positionCh := client.GetPositions()
 		position := <-positionCh
 		assert.NotNil(t, position.Error)
 		assert.ObjectsAreEqual(&json.SyntaxError{}, position.Error)
@@ -51,8 +53,9 @@ func TestGetPositions(t *testing.T) {
 			fmt.Fprint(w, string(rawFileBytes))
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		positionCh := GetPositions(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		positionCh := client.GetPositions()
 		position := <-positionCh
 		assert.Nil(t, position.Error)
 		assert.Equal(t, 5800000, position.Data.EstimatedPriceTotal)
@@ -75,8 +78,9 @@ func TestGetStatements(t *testing.T) {
 			http.Error(w, string(errRsp), 400)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		statementCh := GetStatements(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		statementCh := client.GetStatements()
 		statement := <-statementCh
 		assert.NotNil(t, statement.Error)
 		assert.Equal(t, &expectedErr, statement.Error)
@@ -86,8 +90,9 @@ func TestGetStatements(t *testing.T) {
 			fmt.Fprint(w, `really odd response`)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		statementCh := GetStatements(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		statementCh := client.GetStatements()
 		statement := <-statementCh
 		assert.NotNil(t, statement.Error)
 		assert.ObjectsAreEqual(&json.SyntaxError{}, statement.Error)
@@ -97,8 +102,9 @@ func TestGetStatements(t *testing.T) {
 			fmt.Fprint(w, string(rawFileBytes))
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		statementCh := GetStatements(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		statementCh := client.GetStatements()
 		statement := <-statementCh
 		assert.Nil(t, statement.Error)
 		assert.Equal(t, "US19260Q1076", statement.Data.ISIN)

@@ -3,8 +3,6 @@ package market_data
 import (
 	"encoding/json"
 	"time"
-
-	"github.com/quantfamily/lemonmarkets/client"
 )
 
 /*
@@ -37,15 +35,15 @@ type Quote struct {
 /*
 GetQuotes takes a possible query parameter and returns Response containing one or more quotes from LemonMarkets
 */
-func GetQuotes(client *client.Client, query *GetQuotesQuery) <-chan Item[Quote, error] {
+func (cl *MarketDataClient) GetQuotes(query *GetQuotesQuery) <-chan Item[Quote, error] {
 	ch := make(chan Item[Quote, error])
-	go returnQuotes(client, query, ch)
+	go cl.returnQuotes(query, ch)
 	return ch
 }
 
-func returnQuotes(client *client.Client, query *GetQuotesQuery, ch chan<- Item[Quote, error]) {
+func (cl *MarketDataClient) returnQuotes(query *GetQuotesQuery, ch chan<- Item[Quote, error]) {
 	defer close(ch)
-	response, err := client.Do("GET", "quotes", query, nil)
+	response, err := cl.backend.Do("GET", "quotes", query, nil)
 	if err != nil {
 		quote := Item[Quote, error]{}
 		quote.Error = err
@@ -66,7 +64,7 @@ func returnQuotes(client *client.Client, query *GetQuotesQuery, ch chan<- Item[Q
 		if response.Next == "" {
 			return
 		}
-		response, quote.Error = client.Do("GET", response.Next, nil, nil)
+		response, quote.Error = cl.backend.Do("GET", response.Next, nil, nil)
 		if quote.Error != nil {
 			ch <- quote
 			return

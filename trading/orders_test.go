@@ -29,8 +29,9 @@ func TestCreateOrder(t *testing.T) {
 			http.Error(w, string(errRsp), 400)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		order := CreateOrder(&client, &Order{Quantity: 10})
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		order := client.CreateOrder(&Order{Quantity: 10})
 		assert.NotNil(t, order.Error)
 		assert.Equal(t, &expectedErr, order.Error)
 	})
@@ -39,8 +40,9 @@ func TestCreateOrder(t *testing.T) {
 			fmt.Fprint(w, `really odd response`)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		order := CreateOrder(&client, &Order{Quantity: 10})
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		order := client.CreateOrder(&Order{Quantity: 10})
 		assert.NotNil(t, order.Error)
 		assert.ObjectsAreEqual(&json.SyntaxError{}, order.Error)
 	})
@@ -49,8 +51,9 @@ func TestCreateOrder(t *testing.T) {
 			fmt.Fprint(w, string(rawFileBytes))
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		order := CreateOrder(&client, &Order{Quantity: 10})
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		order := client.CreateOrder(&Order{Quantity: 10})
 		assert.Nil(t, order.Error)
 	})
 }
@@ -69,8 +72,9 @@ func TestActivateOrder(t *testing.T) {
 			http.Error(w, string(errRsp), 400)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		err := ActivateOrder(&client, "22")
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		err := client.ActivateOrder("22")
 		assert.NotNil(t, err)
 		assert.Equal(t, &expectedErr, err)
 	})
@@ -79,8 +83,9 @@ func TestActivateOrder(t *testing.T) {
 			fmt.Fprint(w, `{"status": "ok"}`)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		err := ActivateOrder(&client, "22")
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		err := client.ActivateOrder("22")
 		assert.Nil(t, err)
 	})
 }
@@ -101,8 +106,9 @@ func TestGetOrders(t *testing.T) {
 			http.Error(w, string(errRsp), 400)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		orderCh := GetOrders(&client, nil)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		orderCh := client.GetOrders(nil)
 		order := <-orderCh
 		assert.NotNil(t, order.Error)
 		assert.Equal(t, &expectedErr, order.Error)
@@ -112,8 +118,9 @@ func TestGetOrders(t *testing.T) {
 			fmt.Fprint(w, `really odd response`)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		orderCh := GetOrders(&client, nil)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		orderCh := client.GetOrders(nil)
 		order := <-orderCh
 		assert.NotNil(t, order.Error)
 		assert.ObjectsAreEqual(&json.SyntaxError{}, order.Error)
@@ -123,8 +130,9 @@ func TestGetOrders(t *testing.T) {
 			fmt.Fprint(w, string(rawFileBytes))
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		orderCh := GetOrders(&client, nil)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		orderCh := client.GetOrders(nil)
 		order := <-orderCh
 		assert.Nil(t, order.Error)
 		assert.Equal(t, 2965000, order.Data.ExecutedPrice)
@@ -147,8 +155,9 @@ func TestGetOrder(t *testing.T) {
 			http.Error(w, string(errRsp), 400)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		order := GetOrder(&client, "22")
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		order := client.GetOrder("22")
 		assert.NotNil(t, order.Error)
 		assert.Equal(t, &expectedErr, order.Error)
 	})
@@ -157,8 +166,9 @@ func TestGetOrder(t *testing.T) {
 			fmt.Fprint(w, `really odd response`)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		order := GetOrder(&client, "22")
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		order := client.GetOrder("22")
 		assert.NotNil(t, order.Error)
 		assert.ObjectsAreEqual(&json.SyntaxError{}, order.Error)
 	})
@@ -167,8 +177,9 @@ func TestGetOrder(t *testing.T) {
 			fmt.Fprint(w, string(rawFileBytes))
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		order := GetOrder(&client, "22")
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		order := client.GetOrder("22")
 		assert.Nil(t, order.Error)
 		assert.Equal(t, 2965000, order.Data.ExecutedPrice)
 	})
@@ -188,8 +199,9 @@ func TestDeleteOrder(t *testing.T) {
 			http.Error(w, string(errRsp), 400)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		err := DeleteOrder(&client, "22")
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		err := client.DeleteOrder("22")
 		assert.NotNil(t, err)
 		assert.Equal(t, &expectedErr, err)
 	})
@@ -198,8 +210,9 @@ func TestDeleteOrder(t *testing.T) {
 			fmt.Fprint(w, `{"status": "ok"}`)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		err := DeleteOrder(&client, "22")
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		err := client.DeleteOrder("22")
 		assert.Nil(t, err)
 	})
 }

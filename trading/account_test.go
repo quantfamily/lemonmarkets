@@ -29,8 +29,9 @@ func TestAccount(t *testing.T) {
 			http.Error(w, string(errRsp), 400)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		account := GetAccount(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		account := client.GetAccount()
 		assert.NotNil(t, account.Error)
 		assert.Equal(t, &expectedErr, account.Error)
 	})
@@ -39,8 +40,9 @@ func TestAccount(t *testing.T) {
 			fmt.Fprint(w, `really odd response`)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		account := GetAccount(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		account := client.GetAccount()
 		assert.NotNil(t, account.Error)
 		assert.ObjectsAreEqual(&json.SyntaxError{}, account.Error)
 	})
@@ -49,8 +51,9 @@ func TestAccount(t *testing.T) {
 			fmt.Fprint(w, string(rawFileBytes))
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		account := GetAccount(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		account := client.GetAccount()
 		assert.Nil(t, account.Error)
 		assert.Equal(t, "basic", account.Data.TradingPlan)
 		assert.Equal(t, "K2057263187", account.Data.DepositID)
@@ -73,8 +76,9 @@ func TestCreateWithdrawal(t *testing.T) {
 			http.Error(w, string(errRsp), 400)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		err := CreateWithdrawal(&client, &Withdrawal{Amount: 10})
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		err := client.CreateWithdrawal(&Withdrawal{Amount: 10})
 		assert.NotNil(t, err)
 		assert.Equal(t, &expectedErr, err)
 	})
@@ -83,8 +87,9 @@ func TestCreateWithdrawal(t *testing.T) {
 			fmt.Fprint(w, `{"status": "ok"}`)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		err := CreateWithdrawal(&client, &Withdrawal{Amount: 10})
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		err := client.CreateWithdrawal(&Withdrawal{Amount: 10})
 		assert.Nil(t, err)
 	})
 }
@@ -105,8 +110,9 @@ func TestGetWithdrawals(t *testing.T) {
 			http.Error(w, string(errRsp), 400)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		withdrawalCh := GetWithdrawals(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		withdrawalCh := client.GetWithdrawals()
 		withdrawal := <-withdrawalCh
 		assert.NotNil(t, withdrawal.Error)
 		assert.Equal(t, &expectedErr, withdrawal.Error)
@@ -116,8 +122,9 @@ func TestGetWithdrawals(t *testing.T) {
 			fmt.Fprint(w, `really odd response`)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		withdrawalCh := GetWithdrawals(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		withdrawalCh := client.GetWithdrawals()
 		withdrawal := <-withdrawalCh
 		assert.NotNil(t, withdrawal.Error)
 		assert.ObjectsAreEqual(&json.SyntaxError{}, withdrawal.Error)
@@ -127,8 +134,9 @@ func TestGetWithdrawals(t *testing.T) {
 			fmt.Fprint(w, string(rawFileBytes))
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		withdrawalCh := GetWithdrawals(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		withdrawalCh := client.GetWithdrawals()
 		withdrawal := <-withdrawalCh
 		assert.Nil(t, withdrawal.Error)
 		assert.Equal(t, 1000000, withdrawal.Data.Amount)
@@ -151,8 +159,9 @@ func TestGetBankStatements(t *testing.T) {
 			http.Error(w, string(errRsp), 400)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		bankstatementCh := GetBankStatements(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		bankstatementCh := client.GetBankStatements()
 		bankstatement := <-bankstatementCh
 		assert.NotNil(t, bankstatement.Error)
 		assert.Equal(t, &expectedErr, bankstatement.Error)
@@ -162,8 +171,9 @@ func TestGetBankStatements(t *testing.T) {
 			fmt.Fprint(w, `really odd response`)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		bankstatementCh := GetBankStatements(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		bankstatementCh := client.GetBankStatements()
 		bankstatement := <-bankstatementCh
 		assert.NotNil(t, bankstatement.Error)
 		assert.ObjectsAreEqual(&json.SyntaxError{}, bankstatement.Error)
@@ -173,8 +183,9 @@ func TestGetBankStatements(t *testing.T) {
 			fmt.Fprint(w, string(rawFileBytes))
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		bankstatementCh := GetBankStatements(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		bankstatementCh := client.GetBankStatements()
 		bankstatement := <-bankstatementCh
 		assert.Nil(t, bankstatement.Error)
 		assert.Equal(t, 100000, bankstatement.Data.Amount)
@@ -197,8 +208,9 @@ func TestGetDocuments(t *testing.T) {
 			http.Error(w, string(errRsp), 400)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		documentCh := GetDocuments(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		documentCh := client.GetDocuments()
 		document := <-documentCh
 		assert.NotNil(t, document.Error)
 		assert.Equal(t, &expectedErr, document.Error)
@@ -208,8 +220,9 @@ func TestGetDocuments(t *testing.T) {
 			fmt.Fprint(w, `really odd response`)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		documentCh := GetDocuments(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		documentCh := client.GetDocuments()
 		document := <-documentCh
 		assert.NotNil(t, document.Error)
 		assert.ObjectsAreEqual(&json.SyntaxError{}, document.Error)
@@ -219,8 +232,9 @@ func TestGetDocuments(t *testing.T) {
 			fmt.Fprint(w, string(rawFileBytes))
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		documentCh := GetDocuments(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := TradingClient{backend: &backend}
+		documentCh := client.GetDocuments()
 		document := <-documentCh
 		assert.Nil(t, document.Error)
 		assert.Equal(t, "account_opening.pdf", document.Data.Name)

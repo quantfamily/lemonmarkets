@@ -3,8 +3,6 @@ package trading
 import (
 	"encoding/json"
 	"time"
-
-	"github.com/quantfamily/lemonmarkets/client"
 )
 
 /*
@@ -22,15 +20,15 @@ type Position struct {
 /*
 GetPositions returns current positions in LemonMarkets
 */
-func GetPositions(client *client.Client) <-chan Item[Position, error] {
+func (cl *TradingClient) GetPositions() <-chan Item[Position, error] {
 	ch := make(chan Item[Position, error])
-	go returnPositions(client, ch)
+	go cl.returnPositions(ch)
 	return ch
 }
 
-func returnPositions(client *client.Client, ch chan<- Item[Position, error]) {
+func (cl *TradingClient) returnPositions(ch chan<- Item[Position, error]) {
 	defer close(ch)
-	response, err := client.Do("GET", "positions", nil, nil)
+	response, err := cl.backend.Do("GET", "positions", nil, nil)
 	if err != nil {
 		position := Item[Position, error]{}
 		position.Error = err
@@ -51,7 +49,7 @@ func returnPositions(client *client.Client, ch chan<- Item[Position, error]) {
 		if response.Next == "" {
 			return
 		}
-		response, position.Error = client.Do("GET", response.Next, nil, nil)
+		response, position.Error = cl.backend.Do("GET", response.Next, nil, nil)
 		if position.Error != nil {
 			ch <- position
 			return
@@ -71,15 +69,15 @@ type Statement struct {
 	CreatedAt  time.Time `json:"created_at,omitempty"`
 }
 
-func GetStatements(client *client.Client) <-chan Item[Statement, error] {
+func (cl *TradingClient) GetStatements() <-chan Item[Statement, error] {
 	ch := make(chan Item[Statement, error])
-	go returnStatements(client, ch)
+	go cl.returnStatements(ch)
 	return ch
 }
 
-func returnStatements(client *client.Client, ch chan<- Item[Statement, error]) {
+func (cl *TradingClient) returnStatements(ch chan<- Item[Statement, error]) {
 	defer close(ch)
-	response, err := client.Do("GET", "statements", nil, nil)
+	response, err := cl.backend.Do("GET", "statements", nil, nil)
 	if err != nil {
 		statement := Item[Statement, error]{}
 		statement.Error = err
@@ -100,7 +98,7 @@ func returnStatements(client *client.Client, ch chan<- Item[Statement, error]) {
 		if response.Next == "" {
 			return
 		}
-		response, statement.Error = client.Do("GET", response.Next, nil, nil)
+		response, statement.Error = cl.backend.Do("GET", response.Next, nil, nil)
 		if statement.Error != nil {
 			ch <- statement
 			return

@@ -29,8 +29,9 @@ func TestGetInstruments(t *testing.T) {
 			http.Error(w, string(errRsp), 400)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		instrumentCh := GetInstruments(&client, nil)
+		backend := client.Backend{BaseURL: server.URL}
+		client := MarketDataClient{backend: &backend}
+		instrumentCh := client.GetInstruments(nil)
 		instrument := <-instrumentCh
 		assert.NotNil(t, instrument.Error)
 		assert.Equal(t, &expectedErr, instrument.Error)
@@ -40,8 +41,9 @@ func TestGetInstruments(t *testing.T) {
 			fmt.Fprint(w, `really odd response`)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		instrumentCh := GetInstruments(&client, nil)
+		backend := client.Backend{BaseURL: server.URL}
+		client := MarketDataClient{backend: &backend}
+		instrumentCh := client.GetInstruments(nil)
 		instrument := <-instrumentCh
 		assert.NotNil(t, instrument.Error)
 		assert.ObjectsAreEqual(&json.SyntaxError{}, instrument.Error)
@@ -51,8 +53,9 @@ func TestGetInstruments(t *testing.T) {
 			fmt.Fprint(w, string(rawFileBytes))
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		instrumentCh := GetInstruments(&client, nil)
+		backend := client.Backend{BaseURL: server.URL}
+		client := MarketDataClient{backend: &backend}
+		instrumentCh := client.GetInstruments(nil)
 		instrument := <-instrumentCh
 		assert.Nil(t, instrument.Error)
 		assert.Equal(t, "1QZ", instrument.Data.Symbol)
@@ -75,8 +78,9 @@ func TestGetVenues(t *testing.T) {
 			http.Error(w, string(errRsp), 400)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		venueCh := GetVenues(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := MarketDataClient{backend: &backend}
+		venueCh := client.GetVenues()
 		venue := <-venueCh
 		assert.NotNil(t, venue.Error)
 		assert.Equal(t, &expectedErr, venue.Error)
@@ -86,8 +90,9 @@ func TestGetVenues(t *testing.T) {
 			fmt.Fprint(w, `really odd response`)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		venueCh := GetVenues(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := MarketDataClient{backend: &backend}
+		venueCh := client.GetVenues()
 		venue := <-venueCh
 		assert.NotNil(t, venue.Error)
 		assert.ObjectsAreEqual(&json.SyntaxError{}, venue.Error)
@@ -97,8 +102,9 @@ func TestGetVenues(t *testing.T) {
 			fmt.Fprint(w, string(rawFileBytes))
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		venueCh := GetVenues(&client)
+		backend := client.Backend{BaseURL: server.URL}
+		client := MarketDataClient{backend: &backend}
+		venueCh := client.GetVenues()
 		venue := <-venueCh
 		assert.Nil(t, venue.Error)
 		assert.Equal(t, true, venue.Data.IsOpen)

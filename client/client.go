@@ -13,7 +13,7 @@ import (
 /*
 LemonClient holding the Base Path of http address as Environment as well as corresponding API Key
 */
-type Client struct {
+type Backend struct {
 	BaseURL string
 	APIKey  string
 }
@@ -25,7 +25,7 @@ Endpoint as where the call should go (OHLC, Account etc)
 Q as struct holding query- parameters that should be include, eg for filtering
 Data as request body that should be posted
 */
-func (c *Client) Do(method string, endpoint string, q interface{}, data []byte) (*Response, error) {
+func (c *Backend) Do(method string, endpoint string, q interface{}, data []byte) (*Response, error) {
 	url := fmt.Sprintf("%s/%s", c.BaseURL, endpoint)
 	if q != nil {
 		queryString, err := query.Values(q)

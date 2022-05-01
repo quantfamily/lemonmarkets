@@ -29,8 +29,9 @@ func TestGetOHLCs(t *testing.T) {
 			http.Error(w, string(errRsp), 400)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		ohlcCh := GetOHLCPerMinute(&client, nil)
+		backend := client.Backend{BaseURL: server.URL}
+		client := MarketDataClient{backend: &backend}
+		ohlcCh := client.GetOHLCPerMinute(nil)
 		ohlc := <-ohlcCh
 		assert.NotNil(t, ohlc.Error)
 		assert.Equal(t, &expectedErr, ohlc.Error)
@@ -40,8 +41,9 @@ func TestGetOHLCs(t *testing.T) {
 			fmt.Fprint(w, `really odd response`)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		ohlcCh := GetOHLCPerMinute(&client, nil)
+		backend := client.Backend{BaseURL: server.URL}
+		client := MarketDataClient{backend: &backend}
+		ohlcCh := client.GetOHLCPerMinute(nil)
 		ohlc := <-ohlcCh
 		assert.NotNil(t, ohlc.Error)
 		assert.ObjectsAreEqual(&json.SyntaxError{}, ohlc.Error)
@@ -51,8 +53,9 @@ func TestGetOHLCs(t *testing.T) {
 			fmt.Fprint(w, string(rawFileBytes))
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		ohlcCh := GetOHLCPerMinute(&client, nil)
+		backend := client.Backend{BaseURL: server.URL}
+		client := MarketDataClient{backend: &backend}
+		ohlcCh := client.GetOHLCPerMinute(nil)
 		ohlc := <-ohlcCh
 		ohlc = <-ohlcCh
 		assert.Nil(t, ohlc.Error)
@@ -63,8 +66,9 @@ func TestGetOHLCs(t *testing.T) {
 			fmt.Fprint(w, string(rawFileBytes))
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		ohlcCh := GetOHLCPerHour(&client, nil)
+		backend := client.Backend{BaseURL: server.URL}
+		client := MarketDataClient{backend: &backend}
+		ohlcCh := client.GetOHLCPerHour(nil)
 		ohlc := <-ohlcCh
 		ohlc = <-ohlcCh
 		assert.Nil(t, ohlc.Error)
@@ -75,8 +79,9 @@ func TestGetOHLCs(t *testing.T) {
 			fmt.Fprint(w, string(rawFileBytes))
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		ohlcCh := GetOHLCPerDay(&client, nil)
+		backend := client.Backend{BaseURL: server.URL}
+		client := MarketDataClient{backend: &backend}
+		ohlcCh := client.GetOHLCPerDay(nil)
 		ohlc := <-ohlcCh
 		ohlc = <-ohlcCh
 		assert.Nil(t, ohlc.Error)

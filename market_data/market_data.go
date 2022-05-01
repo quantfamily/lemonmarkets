@@ -15,6 +15,11 @@ type Environment string
 
 const DATA string = "https://data.lemon.markets/v1"
 
-func NewClient(APIKey string) *client.Client {
-	return &client.Client{BaseURL: string(DATA), APIKey: APIKey}
+type MarketDataClient struct {
+	backend *client.Backend
+}
+
+func NewClient(APIKey string) *MarketDataClient {
+	backend := client.Backend{APIKey: APIKey, BaseURL: string(DATA)}
+	return &MarketDataClient{backend: &backend}
 }

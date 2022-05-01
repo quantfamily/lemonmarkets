@@ -29,8 +29,9 @@ func TestGetTrades(t *testing.T) {
 			http.Error(w, string(errRsp), 400)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		tradeCh := GetTrades(&client, nil)
+		backend := client.Backend{BaseURL: server.URL}
+		client := MarketDataClient{backend: &backend}
+		tradeCh := client.GetTrades(nil)
 		trade := <-tradeCh
 		assert.NotNil(t, trade.Error)
 		assert.Equal(t, &expectedErr, trade.Error)
@@ -40,8 +41,9 @@ func TestGetTrades(t *testing.T) {
 			fmt.Fprint(w, `really odd response`)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		tradeCh := GetTrades(&client, nil)
+		backend := client.Backend{BaseURL: server.URL}
+		client := MarketDataClient{backend: &backend}
+		tradeCh := client.GetTrades(nil)
 		trade := <-tradeCh
 		assert.NotNil(t, trade.Error)
 		assert.ObjectsAreEqual(&json.SyntaxError{}, trade.Error)
@@ -51,8 +53,9 @@ func TestGetTrades(t *testing.T) {
 			fmt.Fprint(w, string(rawFileBytes))
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		tradeCh := GetTrades(&client, nil)
+		backend := client.Backend{BaseURL: server.URL}
+		client := MarketDataClient{backend: &backend}
+		tradeCh := client.GetTrades(nil)
 		trade := <-tradeCh
 		assert.Nil(t, trade.Error)
 		assert.Equal(t, 2, trade.Data.Volume)

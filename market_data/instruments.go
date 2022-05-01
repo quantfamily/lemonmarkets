@@ -2,8 +2,6 @@ package market_data
 
 import (
 	"encoding/json"
-
-	"github.com/quantfamily/lemonmarkets/client"
 )
 
 /*
@@ -37,15 +35,15 @@ type Instrument struct {
 GetInstruments calls backend with a optional query to filter data
 Response will be list of one or more instruments that we received from LemonMarkets
 */
-func GetInstruments(client *client.Client, query *GetInstrumentsQuery) <-chan Item[Instrument, error] {
+func (cl *MarketDataClient) GetInstruments(query *GetInstrumentsQuery) <-chan Item[Instrument, error] {
 	ch := make(chan Item[Instrument, error])
-	go returnInstruments(client, query, ch)
+	go cl.returnInstruments(query, ch)
 	return ch
 }
 
-func returnInstruments(client *client.Client, query *GetInstrumentsQuery, ch chan<- Item[Instrument, error]) {
+func (cl *MarketDataClient) returnInstruments(query *GetInstrumentsQuery, ch chan<- Item[Instrument, error]) {
 	defer close(ch)
-	response, err := client.Do("GET", "instruments", query, nil)
+	response, err := cl.backend.Do("GET", "instruments", query, nil)
 	if err != nil {
 		instrument := Item[Instrument, error]{}
 		instrument.Error = err
@@ -66,7 +64,7 @@ func returnInstruments(client *client.Client, query *GetInstrumentsQuery, ch cha
 		if response.Next == "" {
 			return
 		}
-		response, instrument.Error = client.Do("GET", response.Next, nil, nil)
+		response, instrument.Error = cl.backend.Do("GET", response.Next, nil, nil)
 		if instrument.Error != nil {
 			ch <- instrument
 			return
@@ -86,15 +84,15 @@ type Venue struct {
 	Currency string `json:"currency"`
 }
 
-func GetVenues(client *client.Client) <-chan Item[Venue, error] {
+func (cl *MarketDataClient) GetVenues() <-chan Item[Venue, error] {
 	ch := make(chan Item[Venue, error])
-	go returnVenues(client, ch)
+	go cl.returnVenues(ch)
 	return ch
 }
 
-func returnVenues(client *client.Client, ch chan<- Item[Venue, error]) {
+func (cl *MarketDataClient) returnVenues(ch chan<- Item[Venue, error]) {
 	defer close(ch)
-	response, err := client.Do("GET", "venues", nil, nil)
+	response, err := cl.backend.Do("GET", "venues", nil, nil)
 	if err != nil {
 		venue := Item[Venue, error]{}
 		venue.Error = err
@@ -115,7 +113,7 @@ func returnVenues(client *client.Client, ch chan<- Item[Venue, error]) {
 		if response.Next == "" {
 			return
 		}
-		response, venue.Error = client.Do("GET", response.Next, nil, nil)
+		response, venue.Error = cl.backend.Do("GET", response.Next, nil, nil)
 		if venue.Error != nil {
 			ch <- venue
 			return

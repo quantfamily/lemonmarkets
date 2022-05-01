@@ -3,8 +3,6 @@ package trading
 import (
 	"encoding/json"
 	"time"
-
-	"github.com/quantfamily/lemonmarkets/client"
 )
 
 /*
@@ -42,9 +40,9 @@ type Account struct {
 /*
 GetAccount returns account information from the used, based on the API Key
 */
-func GetAccount(client *client.Client) *Item[Account, error] {
+func (cl *TradingClient) GetAccount() *Item[Account, error] {
 	account := &Item[Account, error]{}
-	responseData, err := client.Do("GET", "account", nil, nil)
+	responseData, err := cl.backend.Do("GET", "account", nil, nil)
 	if err != nil {
 		account.Error = err
 		return account
@@ -61,24 +59,24 @@ type Withdrawal struct {
 	Idempotency string    `json:"idempotency,omitempty"`
 }
 
-func CreateWithdrawal(client *client.Client, withdrawal *Withdrawal) error {
+func (cl *TradingClient) CreateWithdrawal(withdrawal *Withdrawal) error {
 	withdrawData, err := json.Marshal(withdrawal)
 	if err != nil {
 		return err
 	}
-	_, err = client.Do("POST", "withdrawal", nil, withdrawData)
+	_, err = cl.backend.Do("POST", "withdrawal", nil, withdrawData)
 	return err
 }
 
-func GetWithdrawals(client *client.Client) <-chan Item[Withdrawal, error] {
+func (cl *TradingClient) GetWithdrawals() <-chan Item[Withdrawal, error] {
 	ch := make(chan Item[Withdrawal, error])
-	go returnWithdrawals(client, ch)
+	go cl.returnWithdrawals(ch)
 	return ch
 }
 
-func returnWithdrawals(client *client.Client, ch chan<- Item[Withdrawal, error]) {
+func (cl *TradingClient) returnWithdrawals(ch chan<- Item[Withdrawal, error]) {
 	defer close(ch)
-	response, err := client.Do("GET", "withdrawals", nil, nil)
+	response, err := cl.backend.Do("GET", "withdrawals", nil, nil)
 	if err != nil {
 		withdrawal := Item[Withdrawal, error]{}
 		withdrawal.Error = err
@@ -99,7 +97,7 @@ func returnWithdrawals(client *client.Client, ch chan<- Item[Withdrawal, error])
 		if response.Next == "" {
 			return
 		}
-		response, withdrawal.Error = client.Do("GET", response.Next, nil, nil)
+		response, withdrawal.Error = cl.backend.Do("GET", response.Next, nil, nil)
 		if withdrawal.Error != nil {
 			ch <- withdrawal
 			return
@@ -118,15 +116,15 @@ type BankStatement struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 }
 
-func GetBankStatements(client *client.Client) <-chan Item[BankStatement, error] {
+func (cl *TradingClient) GetBankStatements() <-chan Item[BankStatement, error] {
 	ch := make(chan Item[BankStatement, error])
-	go returnBankStatements(client, ch)
+	go cl.returnBankStatements(ch)
 	return ch
 }
 
-func returnBankStatements(client *client.Client, ch chan<- Item[BankStatement, error]) {
+func (cl *TradingClient) returnBankStatements(ch chan<- Item[BankStatement, error]) {
 	defer close(ch)
-	response, err := client.Do("GET", "bankstatements", nil, nil)
+	response, err := cl.backend.Do("GET", "bankstatements", nil, nil)
 	if err != nil {
 		bankstatement := Item[BankStatement, error]{}
 		bankstatement.Error = err
@@ -147,7 +145,7 @@ func returnBankStatements(client *client.Client, ch chan<- Item[BankStatement, e
 		if response.Next == "" {
 			return
 		}
-		response, bankstatement.Error = client.Do("GET", response.Next, nil, nil)
+		response, bankstatement.Error = cl.backend.Do("GET", response.Next, nil, nil)
 		if bankstatement.Error != nil {
 			ch <- bankstatement
 			return
@@ -165,15 +163,15 @@ type Document struct {
 	ViewedLastAt  time.Time `json:"viewed_last_at,omitempty"`
 }
 
-func GetDocuments(client *client.Client) <-chan Item[Document, error] {
+func (cl *TradingClient) GetDocuments() <-chan Item[Document, error] {
 	ch := make(chan Item[Document, error])
-	go returnDocuments(client, ch)
+	go cl.returnDocuments(ch)
 	return ch
 }
 
-func returnDocuments(client *client.Client, ch chan<- Item[Document, error]) {
+func (cl *TradingClient) returnDocuments(ch chan<- Item[Document, error]) {
 	defer close(ch)
-	response, err := client.Do("GET", "documents", nil, nil)
+	response, err := cl.backend.Do("GET", "documents", nil, nil)
 	if err != nil {
 		document := Item[Document, error]{}
 		document.Error = err
@@ -194,7 +192,7 @@ func returnDocuments(client *client.Client, ch chan<- Item[Document, error]) {
 		if response.Next == "" {
 			return
 		}
-		response, document.Error = client.Do("GET", response.Next, nil, nil)
+		response, document.Error = cl.backend.Do("GET", response.Next, nil, nil)
 		if document.Error != nil {
 			ch <- document
 			return

@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestClient(t *testing.T) {
+func TestBackend(t *testing.T) {
 	t.Run("Do, get LemonError", func(t *testing.T) {
 		errMessage := "generic error message"
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -19,8 +19,8 @@ func TestClient(t *testing.T) {
 		}))
 		defer server.Close()
 
-		client := Client{BaseURL: server.URL}
-		_, err := client.Do("demo", "demo", nil, nil)
+		backend := Backend{BaseURL: server.URL}
+		_, err := backend.Do("demo", "demo", nil, nil)
 		if err == nil {
 			t.Errorf("Expected error, got nil")
 		}
@@ -35,8 +35,8 @@ func TestClient(t *testing.T) {
 		}))
 		defer server.Close()
 
-		client := Client{BaseURL: server.URL}
-		_, err := client.Do("demo", "demo", nil, nil)
+		backend := Backend{BaseURL: server.URL}
+		_, err := backend.Do("demo", "demo", nil, nil)
 		if err == nil {
 			t.Errorf("Expected error, got nil")
 		}
@@ -47,8 +47,8 @@ func TestClient(t *testing.T) {
 		}))
 		defer server.Close()
 
-		client := Client{BaseURL: server.URL}
-		_, err := client.Do("demo", "demo", nil, nil)
+		backend := Backend{BaseURL: server.URL}
+		_, err := backend.Do("demo", "demo", nil, nil)
 		if err != nil {
 			t.Errorf("Expected nil, got error: %v", err)
 		}

@@ -3,8 +3,6 @@ package market_data
 import (
 	"encoding/json"
 	"time"
-
-	"github.com/quantfamily/lemonmarkets/client"
 )
 
 /*
@@ -35,15 +33,15 @@ type Trade struct {
 /*
 GetTrades take a possible query parameter and returns a object contaning one or mote trades
 */
-func GetTrades(client *client.Client, query *TradesQuery) <-chan Item[Trade, error] {
+func (cl *MarketDataClient) GetTrades(query *TradesQuery) <-chan Item[Trade, error] {
 	ch := make(chan Item[Trade, error])
-	go returnTrades(client, query, ch)
+	go cl.returnTrades(query, ch)
 	return ch
 }
 
-func returnTrades(client *client.Client, query *TradesQuery, ch chan<- Item[Trade, error]) {
+func (cl *MarketDataClient) returnTrades(query *TradesQuery, ch chan<- Item[Trade, error]) {
 	defer close(ch)
-	response, err := client.Do("GET", "trades", query, nil)
+	response, err := cl.backend.Do("GET", "trades", query, nil)
 	if err != nil {
 		trade := Item[Trade, error]{}
 		trade.Error = err
@@ -64,7 +62,7 @@ func returnTrades(client *client.Client, query *TradesQuery, ch chan<- Item[Trad
 		if response.Next == "" {
 			return
 		}
-		response, trade.Error = client.Do("GET", response.Next, nil, nil)
+		response, trade.Error = cl.backend.Do("GET", response.Next, nil, nil)
 		if trade.Error != nil {
 			ch <- trade
 			return

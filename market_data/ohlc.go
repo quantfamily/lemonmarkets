@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
-
-	"github.com/quantfamily/lemonmarkets/client"
 )
 
 /*
@@ -39,33 +37,33 @@ type OHLC struct {
 /*
 GetOHLCPerMinute returns a response containing a list of OHLC per minute
 */
-func GetOHLCPerMinute(client *client.Client, query *GetOHLCQuery) <-chan Item[OHLC, error] {
+func (cl *MarketDataClient) GetOHLCPerMinute(query *GetOHLCQuery) <-chan Item[OHLC, error] {
 	ch := make(chan Item[OHLC, error])
-	go returnOHLC(client, "m1", query, ch)
+	go cl.returnOHLC("m1", query, ch)
 	return ch
 }
 
 /*
 GetOHLCPerHour returns a response containing a list of OHLC per hour
 */
-func GetOHLCPerHour(client *client.Client, query *GetOHLCQuery) <-chan Item[OHLC, error] {
+func (cl *MarketDataClient) GetOHLCPerHour(query *GetOHLCQuery) <-chan Item[OHLC, error] {
 	ch := make(chan Item[OHLC, error])
-	go returnOHLC(client, "h1", query, ch)
+	go cl.returnOHLC("h1", query, ch)
 	return ch
 }
 
 /*
 GetOHLCPerDay returns a response containing a list of OHLC per day
 */
-func GetOHLCPerDay(client *client.Client, query *GetOHLCQuery) <-chan Item[OHLC, error] {
+func (cl *MarketDataClient) GetOHLCPerDay(query *GetOHLCQuery) <-chan Item[OHLC, error] {
 	ch := make(chan Item[OHLC, error])
-	go returnOHLC(client, "d1", query, ch)
+	go cl.returnOHLC("d1", query, ch)
 	return ch
 }
 
-func returnOHLC(client *client.Client, interval string, query *GetOHLCQuery, ch chan<- Item[OHLC, error]) {
+func (cl *MarketDataClient) returnOHLC(interval string, query *GetOHLCQuery, ch chan<- Item[OHLC, error]) {
 	defer close(ch)
-	response, err := client.Do("GET", fmt.Sprintf("ohlc/%s", interval), query, nil)
+	response, err := cl.backend.Do("GET", fmt.Sprintf("ohlc/%s", interval), query, nil)
 	if err != nil {
 		ohlc := Item[OHLC, error]{}
 		ohlc.Error = err
@@ -86,7 +84,7 @@ func returnOHLC(client *client.Client, interval string, query *GetOHLCQuery, ch 
 		if response.Next == "" {
 			return
 		}
-		response, ohlc.Error = client.Do("GET", response.Next, nil, nil)
+		response, ohlc.Error = cl.backend.Do("GET", response.Next, nil, nil)
 		if ohlc.Error != nil {
 			ch <- ohlc
 			return

@@ -14,10 +14,15 @@ type Item[data DataTypes, err error] struct {
 type Environment string
 
 const (
-	PAPER Environment = ""
-	LIVE  Environment = ""
+	PAPER Environment = "https://paper-trading.lemon.markets/v1"
+	LIVE  Environment = "https://trading.lemon.markets/v1"
 )
 
-func NewClient(APIKey string, environment Environment) *client.Client {
-	return &client.Client{BaseURL: string(environment), APIKey: APIKey}
+type TradingClient struct {
+	backend *client.Backend
+}
+
+func NewClient(APIKey string, environment Environment) *TradingClient {
+	backend := client.Backend{APIKey: APIKey, BaseURL: string(environment)}
+	return &TradingClient{backend: &backend}
 }

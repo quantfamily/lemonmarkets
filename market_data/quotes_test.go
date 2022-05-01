@@ -29,8 +29,9 @@ func TestGetQuotes(t *testing.T) {
 			http.Error(w, string(errRsp), 400)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		quoteCh := GetQuotes(&client, nil)
+		backend := client.Backend{BaseURL: server.URL}
+		client := MarketDataClient{backend: &backend}
+		quoteCh := client.GetQuotes(nil)
 		quote := <-quoteCh
 		assert.NotNil(t, quote.Error)
 		assert.Equal(t, &expectedErr, quote.Error)
@@ -40,8 +41,9 @@ func TestGetQuotes(t *testing.T) {
 			fmt.Fprint(w, `really odd response`)
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		quoteCh := GetQuotes(&client, nil)
+		backend := client.Backend{BaseURL: server.URL}
+		client := MarketDataClient{backend: &backend}
+		quoteCh := client.GetQuotes(nil)
 		quote := <-quoteCh
 		assert.NotNil(t, quote.Error)
 		assert.ObjectsAreEqual(&json.SyntaxError{}, quote.Error)
@@ -51,8 +53,9 @@ func TestGetQuotes(t *testing.T) {
 			fmt.Fprint(w, string(rawFileBytes))
 		}))
 		defer server.Close()
-		client := client.Client{BaseURL: server.URL}
-		quoteCh := GetQuotes(&client, nil)
+		backend := client.Backend{BaseURL: server.URL}
+		client := MarketDataClient{backend: &backend}
+		quoteCh := client.GetQuotes(nil)
 		quote := <-quoteCh
 		assert.Nil(t, quote.Error)
 		assert.Equal(t, 921.1, quote.Data.Ask)

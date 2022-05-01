@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
-
-	"github.com/quantfamily/lemonmarkets/client"
 )
 
 /*
@@ -68,7 +66,7 @@ type RegulatoryInformation struct {
 /*
 CreateOrder places a order on LemonMarkets and returns response from the backend
 */
-func CreateOrder(client *client.Client, order *Order) *Item[Order, error] {
+func (cl *TradingClient) CreateOrder(order *Order) *Item[Order, error] {
 	item := &Item[Order, error]{}
 
 	orderData, err := json.Marshal(order)
@@ -77,7 +75,7 @@ func CreateOrder(client *client.Client, order *Order) *Item[Order, error] {
 		return item
 	}
 
-	response, err := client.Do("POST", "orders", nil, orderData)
+	response, err := cl.backend.Do("POST", "orders", nil, orderData)
 	if err != nil {
 		item.Error = err
 		return item
@@ -89,8 +87,8 @@ func CreateOrder(client *client.Client, order *Order) *Item[Order, error] {
 /*
 ActivateOrder activates a placed order on LemonMarkets to go into execution
 */
-func ActivateOrder(client *client.Client, orderID string) error {
-	_, err := client.Do("POST", fmt.Sprintf("orders/%s/activate", orderID), nil, nil)
+func (cl *TradingClient) ActivateOrder(orderID string) error {
+	_, err := cl.backend.Do("POST", fmt.Sprintf("orders/%s/activate", orderID), nil, nil)
 	return err
 }
 
@@ -113,15 +111,15 @@ type GetOrdersQuery struct {
 /*
 GetOrders can take a query parameters and return one or more orders embedded a result in Response- object
 */
-func GetOrders(client *client.Client, query *GetOrdersQuery) <-chan Item[Order, error] {
+func (cl *TradingClient) GetOrders(query *GetOrdersQuery) <-chan Item[Order, error] {
 	ch := make(chan Item[Order, error])
-	go returnOrders(client, query, ch)
+	go cl.returnOrders(query, ch)
 	return ch
 }
 
-func returnOrders(client *client.Client, query *GetOrdersQuery, ch chan<- Item[Order, error]) {
+func (cl *TradingClient) returnOrders(query *GetOrdersQuery, ch chan<- Item[Order, error]) {
 	defer close(ch)
-	response, err := client.Do("GET", "orders", query, nil)
+	response, err := cl.backend.Do("GET", "orders", query, nil)
 	if err != nil {
 		order := Item[Order, error]{}
 		order.Error = err
@@ -142,7 +140,7 @@ func returnOrders(client *client.Client, query *GetOrdersQuery, ch chan<- Item[O
 		if response.Next == "" {
 			return
 		}
-		response, order.Error = client.Do("GET", response.Next, nil, nil)
+		response, order.Error = cl.backend.Do("GET", response.Next, nil, nil)
 		if order.Error != nil {
 			ch <- order
 			return
@@ -153,9 +151,9 @@ func returnOrders(client *client.Client, query *GetOrdersQuery, ch chan<- Item[O
 /*
 GetOrder returns a placed order based on a specific orderID
 */
-func GetOrder(client *client.Client, orderID string) *Item[Order, error] {
+func (cl *TradingClient) GetOrder(orderID string) *Item[Order, error] {
 	order := &Item[Order, error]{}
-	response, err := client.Do("GET", fmt.Sprintf("orders/%s", orderID), nil, nil)
+	response, err := cl.backend.Do("GET", fmt.Sprintf("orders/%s", orderID), nil, nil)
 	if err != nil {
 		order.Error = err
 		return order
@@ -167,7 +165,7 @@ func GetOrder(client *client.Client, orderID string) *Item[Order, error] {
 /*
 DeleteOrder deletes a placed order and makes unable to be activated and executed
 */
-func DeleteOrder(client *client.Client, orderID string) error {
-	_, err := client.Do("DELETE", fmt.Sprintf("orders/%s", orderID), nil, nil)
+func (cl *TradingClient) DeleteOrder(orderID string) error {
+	_, err := cl.backend.Do("DELETE", fmt.Sprintf("orders/%s", orderID), nil, nil)
 	return err
 }

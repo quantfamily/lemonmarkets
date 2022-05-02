@@ -57,6 +57,7 @@ func (cl *TradingClient) returnPositions(ch chan<- Item[Position, error]) {
 	}
 }
 
+// Statement
 type Statement struct {
 	ID         string    `json:"id,omitempty"`
 	OrderID    string    `json:"order_id,omitempty"`
@@ -69,6 +70,7 @@ type Statement struct {
 	CreatedAt  time.Time `json:"created_at,omitempty"`
 }
 
+// GetStatements
 func (cl *TradingClient) GetStatements() <-chan Item[Statement, error] {
 	ch := make(chan Item[Statement, error])
 	go cl.returnStatements(ch)

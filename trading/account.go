@@ -51,6 +51,7 @@ func (cl *TradingClient) GetAccount() *Item[Account, error] {
 	return account
 }
 
+// Withdrawal from Lemon.markets to personal account
 type Withdrawal struct {
 	ID          string    `json:"id,omitempty"`
 	Amount      int       `json:"amount,omitempty"`
@@ -59,6 +60,7 @@ type Withdrawal struct {
 	Idempotency string    `json:"idempotency,omitempty"`
 }
 
+// CreateWithdrawal will initialize new transfer from Lemon.markets to personal account
 func (cl *TradingClient) CreateWithdrawal(withdrawal *Withdrawal) error {
 	withdrawData, err := json.Marshal(withdrawal)
 	if err != nil {
@@ -68,6 +70,7 @@ func (cl *TradingClient) CreateWithdrawal(withdrawal *Withdrawal) error {
 	return err
 }
 
+// GetWithdrawals returns withdrawals that has been made
 func (cl *TradingClient) GetWithdrawals() <-chan Item[Withdrawal, error] {
 	ch := make(chan Item[Withdrawal, error])
 	go cl.returnWithdrawals(ch)
@@ -105,6 +108,7 @@ func (cl *TradingClient) returnWithdrawals(ch chan<- Item[Withdrawal, error]) {
 	}
 }
 
+// BankStatement
 type BankStatement struct {
 	ID        string    `json:"id,omitempty"`
 	AcountID  string    `json:"account_id,omitempty"`
@@ -116,6 +120,7 @@ type BankStatement struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 }
 
+// BankStatement
 func (cl *TradingClient) GetBankStatements() <-chan Item[BankStatement, error] {
 	ch := make(chan Item[BankStatement, error])
 	go cl.returnBankStatements(ch)
@@ -153,6 +158,7 @@ func (cl *TradingClient) returnBankStatements(ch chan<- Item[BankStatement, erro
 	}
 }
 
+// Document
 type Document struct {
 	ID            string    `json:"id,omitempty"`
 	Name          string    `json:"name,omitempty"`
@@ -163,6 +169,7 @@ type Document struct {
 	ViewedLastAt  time.Time `json:"viewed_last_at,omitempty"`
 }
 
+// GetDocuments
 func (cl *TradingClient) GetDocuments() <-chan Item[Document, error] {
 	ch := make(chan Item[Document, error])
 	go cl.returnDocuments(ch)

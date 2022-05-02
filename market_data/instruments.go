@@ -19,7 +19,7 @@ type GetInstrumentsQuery struct {
 }
 
 /*
-Instrument is possibly tradable asset that can be ordered
+Instrument that can be tradeable
 */
 type Instrument struct {
 	ISIN   string  `json:"isin"`
@@ -84,6 +84,9 @@ type Venue struct {
 	Currency string `json:"currency"`
 }
 
+/*
+GetVenues will return all known venues/markets known by Lemon.markets
+*/
 func (cl *MarketDataClient) GetVenues() <-chan Item[Venue, error] {
 	ch := make(chan Item[Venue, error])
 	go cl.returnVenues(ch)

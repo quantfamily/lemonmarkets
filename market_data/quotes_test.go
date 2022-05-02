@@ -61,3 +61,12 @@ func TestGetQuotes(t *testing.T) {
 		assert.Equal(t, 921.1, quote.Data.Ask)
 	})
 }
+
+func TestGetQuotesIntegration(t *testing.T) {
+	client := IntegrationClient(t)
+	quotesq := GetQuotesQuery{ISIN: []string{"SE0000115446"}}
+	ch := client.GetQuotes(&quotesq)
+
+	quote := <-ch
+	assert.Nil(t, quote.Error)
+}

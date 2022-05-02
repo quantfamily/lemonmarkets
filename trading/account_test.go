@@ -240,3 +240,43 @@ func TestGetDocuments(t *testing.T) {
 		assert.Equal(t, "account_opening.pdf", document.Data.Name)
 	})
 }
+
+func TestGetAccountIntegration(t *testing.T) {
+	client := IntegrationClient(t)
+	account := client.GetAccount()
+
+	assert.Nil(t, account.Error)
+}
+
+func TestGetWithdrawalIntegration(t *testing.T) {
+	client := IntegrationClient(t)
+	ch := client.GetWithdrawals()
+
+	withdrawal := <-ch
+
+	assert.Nil(t, withdrawal.Error)
+}
+
+func TestGetWithdrawalsIntegration(t *testing.T) {
+	client := IntegrationClient(t)
+	ch := client.GetWithdrawals()
+
+	withdrawal := <-ch
+	assert.Nil(t, withdrawal.Error)
+}
+
+func TestGetBankStatementsIntegration(t *testing.T) {
+	client := IntegrationClient(t)
+	ch := client.GetBankStatements()
+
+	bankstatement := <-ch
+	assert.Nil(t, bankstatement.Error)
+}
+
+func TestGetDocumentsIntegration(t *testing.T) {
+	client := IntegrationClient(t)
+	ch := client.GetDocuments()
+
+	document := <-ch
+	assert.Nil(t, document.Error)
+}

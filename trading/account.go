@@ -32,7 +32,7 @@ type Account struct {
 	CashToWithdraw    float32   `json:"cash_to_withdraw"`
 	TradingPlan       string    `json:"trading_plan"`
 	DataPlan          string    `json:"data_plan"`
-	TaxAllowance      string    `json:"tax_allowance"`
+	TaxAllowance      int       `json:"tax_allowance"`
 	TaxAllowanceStart time.Time `json:"tax_allowance_start"`
 	TaxAllowanceEnd   time.Time `json:"tax_allowance_end"`
 }
@@ -64,7 +64,7 @@ func (cl *TradingClient) CreateWithdrawal(withdrawal *Withdrawal) error {
 	if err != nil {
 		return err
 	}
-	_, err = cl.backend.Do("POST", "withdrawal", nil, withdrawData)
+	_, err = cl.backend.Do("POST", "account/withdrawal", nil, withdrawData)
 	return err
 }
 
@@ -76,7 +76,7 @@ func (cl *TradingClient) GetWithdrawals() <-chan Item[Withdrawal, error] {
 
 func (cl *TradingClient) returnWithdrawals(ch chan<- Item[Withdrawal, error]) {
 	defer close(ch)
-	response, err := cl.backend.Do("GET", "withdrawals", nil, nil)
+	response, err := cl.backend.Do("GET", "account/withdrawals", nil, nil)
 	if err != nil {
 		withdrawal := Item[Withdrawal, error]{}
 		withdrawal.Error = err
@@ -124,7 +124,7 @@ func (cl *TradingClient) GetBankStatements() <-chan Item[BankStatement, error] {
 
 func (cl *TradingClient) returnBankStatements(ch chan<- Item[BankStatement, error]) {
 	defer close(ch)
-	response, err := cl.backend.Do("GET", "bankstatements", nil, nil)
+	response, err := cl.backend.Do("GET", "account/bankstatements", nil, nil)
 	if err != nil {
 		bankstatement := Item[BankStatement, error]{}
 		bankstatement.Error = err
@@ -171,7 +171,7 @@ func (cl *TradingClient) GetDocuments() <-chan Item[Document, error] {
 
 func (cl *TradingClient) returnDocuments(ch chan<- Item[Document, error]) {
 	defer close(ch)
-	response, err := cl.backend.Do("GET", "documents", nil, nil)
+	response, err := cl.backend.Do("GET", "account/documents", nil, nil)
 	if err != nil {
 		document := Item[Document, error]{}
 		document.Error = err

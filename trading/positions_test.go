@@ -110,3 +110,19 @@ func TestGetStatements(t *testing.T) {
 		assert.Equal(t, "US19260Q1076", statement.Data.ISIN)
 	})
 }
+
+func TestGetPositionsIntegration(t *testing.T) {
+	client := IntegrationClient(t)
+	ch := client.GetPositions()
+
+	position := <-ch
+	assert.Nil(t, position.Error)
+}
+
+func TestGetStatementsIntegration(t *testing.T) {
+	client := IntegrationClient(t)
+	ch := client.GetStatements()
+
+	statement := <-ch
+	assert.Nil(t, statement.Error)
+}

@@ -61,3 +61,12 @@ func TestGetTrades(t *testing.T) {
 		assert.Equal(t, 2, trade.Data.Volume)
 	})
 }
+
+func TestGetTradesIntegration(t *testing.T) {
+	client := IntegrationClient(t)
+	tradesq := GetTradesQuery{ISIN: []string{"SE0000115446"}}
+	ch := client.GetTrades(&tradesq)
+
+	trade := <-ch
+	assert.Nil(t, trade.Error)
+}

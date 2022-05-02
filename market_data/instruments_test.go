@@ -110,3 +110,19 @@ func TestGetVenues(t *testing.T) {
 		assert.Equal(t, true, venue.Data.IsOpen)
 	})
 }
+
+func TestGetInstrumentsIntegration(t *testing.T) {
+	client := IntegrationClient(t)
+	ch := client.GetInstruments(nil)
+
+	instrument := <-ch
+	assert.Nil(t, instrument.Error)
+}
+
+func TestGetVenueIntegration(t *testing.T) {
+	client := IntegrationClient(t)
+	ch := client.GetVenues()
+
+	venue := <-ch
+	assert.Nil(t, venue.Error)
+}

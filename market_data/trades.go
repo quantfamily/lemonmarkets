@@ -9,7 +9,7 @@ import (
 GetTradesQuery query used to filter the result of trades
 Read more at: https://docs.lemon.markets/market-data/historical-data#get-trades
 */
-type TradesQuery struct {
+type GetTradesQuery struct {
 	ISIN    []string  `url:"isin,omitempty"`
 	MIC     string    `url:"mic,omitempty"`
 	From    time.Time `url:"from,omitempty"`
@@ -33,13 +33,13 @@ type Trade struct {
 /*
 GetTrades take a possible query parameter and returns a object contaning one or mote trades
 */
-func (cl *MarketDataClient) GetTrades(query *TradesQuery) <-chan Item[Trade, error] {
+func (cl *MarketDataClient) GetTrades(query *GetTradesQuery) <-chan Item[Trade, error] {
 	ch := make(chan Item[Trade, error])
 	go cl.returnTrades(query, ch)
 	return ch
 }
 
-func (cl *MarketDataClient) returnTrades(query *TradesQuery, ch chan<- Item[Trade, error]) {
+func (cl *MarketDataClient) returnTrades(query *GetTradesQuery, ch chan<- Item[Trade, error]) {
 	defer close(ch)
 	response, err := cl.backend.Do("GET", "trades", query, nil)
 	if err != nil {

@@ -216,3 +216,12 @@ func TestDeleteOrder(t *testing.T) {
 		assert.Nil(t, err)
 	})
 }
+
+func TestGetOrdersIntegration(t *testing.T) {
+	client := IntegrationClient(t)
+	ch := client.GetOrders(nil)
+
+	order := <-ch
+
+	assert.Nil(t, order.Error)
+}

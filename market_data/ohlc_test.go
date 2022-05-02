@@ -88,3 +88,30 @@ func TestGetOHLCs(t *testing.T) {
 		assert.Equal(t, 609.5, ohlc.Data.Low)
 	})
 }
+
+func TestGetOHLCPerMinuteIntegration(t *testing.T) {
+	client := IntegrationClient(t)
+	ohlcQ := GetOHLCQuery{ISIN: []string{"SE0000115446"}}
+	ch := client.GetOHLCPerMinute(&ohlcQ)
+
+	ohlc := <-ch
+	assert.Nil(t, ohlc.Error)
+}
+
+func TestGetOHLCPerHourIntegration(t *testing.T) {
+	client := IntegrationClient(t)
+	ohlcQ := GetOHLCQuery{ISIN: []string{"SE0000115446"}}
+	ch := client.GetOHLCPerHour(&ohlcQ)
+
+	ohlc := <-ch
+	assert.Nil(t, ohlc.Error)
+}
+
+func TestGetOHLCPerDayIntegration(t *testing.T) {
+	client := IntegrationClient(t)
+	ohlcQ := GetOHLCQuery{ISIN: []string{"SE0000115446"}}
+	ch := client.GetOHLCPerDay(&ohlcQ)
+
+	ohlc := <-ch
+	assert.Nil(t, ohlc.Error)
+}

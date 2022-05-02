@@ -24,33 +24,73 @@ This library acts as client library to simplify the usage of LemonMarkets when u
 This library is a Unofficial library and therefor the usage cannot always be guaranteed.
 Nevertheless, the goal is to have full support for both Rest API as well as Streaming.
 
-Usage
------
+Usage (Trading module)
+----------------------
 
-Example getting Daily data for stock[1,2,3]
+Example getting your account information
 
 .. code-block:: golang
 
-    client := lemonmarkets.NewClient(lemonmarkets.DATA, "API_KEY")
+    package main
 
-    isins := []string{"ISIN_STOCK1", "ISIN_STOCK2", "ISIN_STOCK3"}
-    query := GetOHLCQuery{ISIN: isins}
+    import (
+        "fmt"
 
-    daily_data, err := GetOHLCPerDay(client, *query)
-    if err != nil {
-        return err
+        "github.com/quantfamily/lemonmarkets/trading"
+    )
+
+    func main() {
+        client := trading.NewClient("YOUR_API_KEY", trading.PAPER)
+        account := client.GetAccount()
+
+        fmt.Println(account)
     }
 
-Example placing order for 10 shares of asset with ISIN 123456789 on paper environment
+Example getting orders placed
 
 .. code-block:: golang
 
-    client := lemonmarkets.NewClient(lemonmarkets.PAPER, "API_KEY")
+    package main
 
-    order := Order{ISIN: "123456789", Quantity: 10, Side: "Buy"}
+    import (
+        "fmt"
 
-    created_order, err := CreateOrder(client, *order)
-    if err != nil {
-        return err 
+        "github.com/quantfamily/lemonmarkets/trading"
+    )
+
+    func main() {
+        client := trading.NewClient("YOUR_API_KEY", trading.PAPER)
+        orders := client.GetOrders(nil) // nil to not filter (i.e receive all)
+
+        for order := range orders {
+            fmt.Println(order.Data)
+        }
+    }
+
+
+Usage (Trading module)
+----------------------
+
+Example getting OHLC Per Day of a share
+
+.. code-block:: golang
+
+    package main
+
+    import (
+        "fmt"
+
+        "github.com/quantfamily/lemonmarkets/market_data"
+    )
+
+    func main() {
+        client := market_data.NewClient("YOUR_API_KEY")
+
+        ohlcQuery := market_data.GetOHLCQuery{ISIN: []string{"SE0000115446"}} // Get Volvo B
+        ohlcs := client.GetOHLCPerDay(&ohlcQuery)
+
+        for ohlc := range ohlcs {
+            fmt.Println(ohlc.Data)
+        }
     }
 

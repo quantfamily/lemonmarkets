@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/google/go-querystring/query"
 )
@@ -26,7 +27,12 @@ Q as struct holding query- parameters that should be include, eg for filtering
 Data as request body that should be posted
 */
 func (c *Backend) Do(method string, endpoint string, q interface{}, data []byte) (*Response, error) {
-	url := fmt.Sprintf("%s/%s", c.BaseURL, endpoint)
+	var url string
+	if strings.Contains(endpoint, "lemon.markets/v1") {
+		url = endpoint
+	} else {
+		url = fmt.Sprintf("%s/%s", c.BaseURL, endpoint)
+	}
 	if q != nil {
 		queryString, err := query.Values(q)
 		if err != nil {

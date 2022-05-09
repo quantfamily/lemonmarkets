@@ -115,3 +115,16 @@ func TestGetOHLCPerDayIntegration(t *testing.T) {
 	ohlc := <-ch
 	assert.Nil(t, ohlc.Error)
 }
+
+func TestMyWay(t *testing.T) {
+	from, _ := time.Parse(time.RFC3339, "2022-04-01T00:00:00Z")
+	to, _ := time.Parse(time.RFC3339, "2022-05-08T00:00:00Z")
+
+	client := IntegrationClient(t)
+	ohlcQ := GetOHLCQuery{ISIN: []string{"DE0005190003", "DE0005439004", "DE0006062144", "DE0008404005", "DE000A1DAHH0", "DE000A1EWWW0", "DE000BASF111", "DE000BAY0017", "DE000DTR0CK8", "NL0000235190"}, From: from, To: to}
+	ch := client.GetOHLCPerDay(&ohlcQ)
+
+	for ohlc := range ch {
+		assert.Nil(t, ohlc.Error)
+	}
+}

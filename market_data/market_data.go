@@ -16,8 +16,8 @@ type Item[data DataTypes, err error] struct {
 // Environment, pointing to a url that we use as backend base- url
 type Environment string
 
-// DATA points to backend for market_data
-const DATA string = "https://data.lemon.markets/v1"
+// BASE_URL points to backend for market_data
+const BASE_URL string = "https://data.lemon.markets/v1"
 
 // MarketDataClient with methods that we use to fetch data
 type MarketDataClient struct {
@@ -26,6 +26,6 @@ type MarketDataClient struct {
 
 // NewClient takes APIKey and returns a MarketDataClient
 func NewClient(APIKey string) *MarketDataClient {
-	backend := client.Backend{APIKey: APIKey, BaseURL: string(DATA)}
+	backend := client.Backend{APIKey: APIKey, BaseURL: BASE_URL}
 	return &MarketDataClient{backend: &backend}
 }

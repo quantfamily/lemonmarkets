@@ -101,6 +101,7 @@ Streaming is based on "Ably Realtime", the SDK itself does not contain the libra
 Users who wish to implement live streaming of data from lemon.markets can obtain a token and implement the functionality as example below
 
 .. code-block:: golang
+    
     package main
 
     import (

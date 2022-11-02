@@ -13,6 +13,10 @@ jobs:
         with:
           go-version: '1.18'
       - name: Run coverage
+        env:
+          TRADING_API_KEY: ${{ secrets.TRADING_API_KEY }}
+          DATA_API_KEY: ${{ secrets.DATA_API_KEY }}
+          STREAMING_API_KEY: ${{ secrets.STREAMING_API_KEY }}
         run: go test -v ./... -race -coverprofile=coverage.out -covermode=atomic
       - name: Upload coverage to Codecov
         run: bash <(curl -s https://codecov.io/bash)

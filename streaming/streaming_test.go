@@ -53,9 +53,9 @@ func TestToken(t *testing.T) {
 
 func IntegrationClient(t *testing.T) *StreamingClient {
 	t.Helper()
-	apiKey, isSet := os.LookupEnv("LEMON_API_KEY")
+	apiKey, isSet := os.LookupEnv("STREAMING_API_KEY")
 	if !isSet {
-		t.Skip("missing environment variable LEMON_API_KEY")
+		t.Skip("missing environment variable STREAMING_API_KEY")
 	}
 	return NewClient(apiKey)
 }

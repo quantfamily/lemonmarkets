@@ -79,7 +79,7 @@ func (cl *TradingClient) GetStatements() <-chan Item[Statement, error] {
 
 func (cl *TradingClient) returnStatements(ch chan<- Item[Statement, error]) {
 	defer close(ch)
-	response, err := cl.backend.Do("GET", "statements", nil, nil)
+	response, err := cl.backend.Do("GET", "positions/statements", nil, nil)
 	if err != nil {
 		statement := Item[Statement, error]{}
 		statement.Error = err
